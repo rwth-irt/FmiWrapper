@@ -15,11 +15,11 @@ namespace FmiWrapper_Net
         private IntPtr wrapper;
 
         // Log event to wrap callback
-        public event FmiWrapperImport.LogCallback Log;
+        public event FmiWrapper.LogCallback Log;
         private void OnLog(string instanceName, int status, string category, string message) =>
             Log?.Invoke(instanceName, status, category, message);
         // StepFinished event to wrap callback
-        public event FmiWrapperImport.StepFinishedCallback StepFinished;
+        public event FmiWrapper.StepFinishedCallback StepFinished;
         private void OnStepFinished(int status) =>
             StepFinished?.Invoke(status);
 
@@ -51,7 +51,7 @@ namespace FmiWrapper_Net
             if (wrapper == IntPtr.Zero)
             {
                 // Load the model instance
-                wrapper = FmiWrapperImport.Fmi2Instantiate(fileName, new FmiWrapperImport.LogCallback(OnLog), new FmiWrapperImport.StepFinishedCallback(OnStepFinished),
+                wrapper = FmiWrapper.Fmi2Instantiate(fileName, new FmiWrapper.LogCallback(OnLog), new FmiWrapper.StepFinishedCallback(OnStepFinished),
                     instanceName, fmuType, guid, resourceLocation, visible, loggingOn);
                 if (wrapper == IntPtr.Zero)
                 {
@@ -64,14 +64,14 @@ namespace FmiWrapper_Net
         public void FreeInstance()
         {
             if (wrapper != IntPtr.Zero)
-                FmiWrapperImport.Fmi2FreeInstance(wrapper);
+                FmiWrapper.Fmi2FreeInstance(wrapper);
             wrapper = IntPtr.Zero;
         }
 
         public string GetTypesPlatform()
         {
             if (wrapper != IntPtr.Zero)
-                return Marshal.PtrToStringAnsi(FmiWrapperImport.Fmi2GetTypesPlatform(wrapper));
+                return Marshal.PtrToStringAnsi(FmiWrapper.Fmi2GetTypesPlatform(wrapper));
             else
                 return "";
         }
@@ -79,7 +79,7 @@ namespace FmiWrapper_Net
         public string GetVersion()
         {
             if (wrapper != IntPtr.Zero)
-                return Marshal.PtrToStringAnsi(FmiWrapperImport.Fmi2GetVersion(wrapper));
+                return Marshal.PtrToStringAnsi(FmiWrapper.Fmi2GetVersion(wrapper));
             else
                 return "";
         }
@@ -87,7 +87,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetupExperiment(bool toleranceDefined, double tolerance, double startTime, bool stopTimeDefined, double stopTime)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiWrapperImport.Fmi2SetupExperiment(wrapper, toleranceDefined, tolerance, startTime, stopTimeDefined, stopTime);
+                return (Fmi2Status)FmiWrapper.Fmi2SetupExperiment(wrapper, toleranceDefined, tolerance, startTime, stopTimeDefined, stopTime);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -96,7 +96,7 @@ namespace FmiWrapper_Net
         public Fmi2Status EnterInitializationMode()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiWrapperImport.Fmi2EnterInitializationMode(wrapper);
+                return (Fmi2Status)FmiWrapper.Fmi2EnterInitializationMode(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -104,7 +104,7 @@ namespace FmiWrapper_Net
         public Fmi2Status ExitInitializationMode()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiWrapperImport.Fmi2ExitInitializationMode(wrapper);
+                return (Fmi2Status)FmiWrapper.Fmi2ExitInitializationMode(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -112,7 +112,7 @@ namespace FmiWrapper_Net
         public Fmi2Status Terminate()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiWrapperImport.Fmi2Terminate(wrapper);
+                return (Fmi2Status)FmiWrapper.Fmi2Terminate(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -120,7 +120,7 @@ namespace FmiWrapper_Net
         public Fmi2Status Reset()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiWrapperImport.Fmi2Reset(wrapper);
+                return (Fmi2Status)FmiWrapper.Fmi2Reset(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
 

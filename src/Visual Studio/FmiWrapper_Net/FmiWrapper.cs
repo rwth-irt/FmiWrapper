@@ -6,7 +6,7 @@ namespace FmiWrapper_Net
     /// <summary>
     /// This class provides static functions that call the C DLL
     /// </summary>
-    public static class FmiWrapperImport
+    public static class FmiWrapper
     {
         // Callback delegate definitions
 
