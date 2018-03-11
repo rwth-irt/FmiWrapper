@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <string.h>
 
 struct wrappedModel
 {
@@ -12,6 +13,8 @@ struct wrappedModel
     void *sharedLibraryHandle;
     /*! The component returned when instantiating the fmu. */
     fmi2Component component;
+    /*! Store the callback functions because some fmus just store the pointer to the struct */
+    fmi2CallbackFunctions *callbackFunctions;
     /*! Callback to forward logs from the fmu to the calling enviroment. */
     logCallback enviromentLog;
     /*! Callback to forward the step finished even from the fmu to the calling enviroment. */
@@ -109,12 +112,13 @@ static void fmuLogCallback(fmi2ComponentEnvironment componentEnvironment, fmi2St
     // For simplification apply the variadic arguments to the format string and call enviromentLog with this single string
     va_list args;
     va_start(args, message);
-    // Get the needed length without \0
-    int length = vsnprintf(NULL, 0, message, args);
+    // Get the length of the string + 1 for the \0 char.
+    int needed_size = vsnprintf(NULL, 0, message, args) + 1;
     // Create and read into buffer with length + 1 (for \0 character)
-    char buffer[length + 1];
-    vsnprintf(buffer, length + 1, message, args);
+    char *buffer = malloc(needed_size);
+    vsnprintf(buffer, needed_size, message, args);
     wrapper->enviromentLog(instanceName, status, category, buffer);
+    free(buffer);
     va_end(args);
 }
 
@@ -128,12 +132,17 @@ static void fmuStepFinished(fmi2ComponentEnvironment componentEnvironment, fmi2S
     wrapper->enviromentStepFinished(status);
 }
 
-PUBLIC_EXPORT wrappedModel *createWrapper(const char *fileName, logCallback logCallback, stepFinishedCallback stepFinishedCallback)
+/*! Load the functions from the binary into a wrapper struct. */
+wrappedModel *createWrapper(const char *fileName, logCallback logCallback, stepFinishedCallback stepFinishedCallback)
 {
+    // Create the wrapper struct
     wrappedModel *wrapper = malloc(sizeof *wrapper);
-    // Load the model binary
     wrapper->sharedLibraryHandle = loadSharedLibrary(fileName);
-    // Create callbacks for enviroment
+    if (wrapper->sharedLibraryHandle == NULL)
+    {
+        // Failed to load the library.
+        return NULL;
+    }
     wrapper->enviromentLog = logCallback;
     wrapper->enviromentStepFinished = stepFinishedCallback;
     // Load all the funcions
@@ -197,11 +206,49 @@ PUBLIC_EXPORT wrappedModel *createWrapper(const char *fileName, logCallback logC
     return wrapper;
 }
 
-PUBLIC_EXPORT int freeWrapper(wrappedModel *wrapper)
+/*! Free the handle and memory of the wrapper. */
+void freeWrapper(wrappedModel *wrapper)
 {
-    int ret_val = freeSharedLibrary(wrapper->sharedLibraryHandle);
+    freeSharedLibrary(wrapper->sharedLibraryHandle);
+    free(wrapper->callbackFunctions);
     free(wrapper);
-    return ret_val;
+}
+
+/* Creation and destruction of FMU instances and setting debug status */
+
+PUBLIC_EXPORT wrappedModel *fmi2Instantiate(const char *fileName, logCallback logCallback, stepFinishedCallback stepFinishedCallback,
+                                            const char *instanceName, int fmuType, const char *guid, const char *resourceLocation, bool visible, bool loggingOn)
+{
+    // Load the functions from the binary
+    wrappedModel *wrapper = createWrapper(fileName, logCallback, stepFinishedCallback);
+    if (wrapper == NULL)
+    {
+        return NULL;
+    }
+    // Supply static callback functions and the wrapper. The wrapper contains the callbacks of the enviroment.
+    wrapper->callbackFunctions = malloc(sizeof(*wrapper->callbackFunctions));
+    fmi2CallbackFunctions callbacks = {
+        fmuLogCallback,
+        calloc,
+        free,
+        fmuStepFinished,
+        wrapper };
+    memcpy(wrapper->callbackFunctions, &callbacks, sizeof(*wrapper->callbackFunctions));
+    // Instantiate the fmu
+    wrapper->component = wrapper->fmi2Instantiate(instanceName, fmuType, guid, resourceLocation, wrapper->callbackFunctions, visible, loggingOn);
+    if (wrapper->component == NULL)
+    {
+        // Failed to instantiate return null
+        freeWrapper(wrapper);
+        return NULL;
+    }
+    return wrapper;
+}
+
+PUBLIC_EXPORT void fmi2FreeInstance(wrappedModel *wrapper)
+{
+    wrapper->fmi2FreeInstance(wrapper->component);
+    freeWrapper(wrapper);
 }
 
 /* Inquire version numbers of header files and setting logging status */
@@ -221,24 +268,6 @@ PUBLIC_EXPORT int fmi2SetDebugLogging(wrappedModel *wrapper, bool loggingOn, siz
     return wrapper->fmi2SetDebugLogging(wrapper->component, loggingOn, nCategories, categories);
 }
 
-/* Creation and destruction of FMU instances and setting debug status */
-
-PUBLIC_EXPORT void fmi2Instantiate(wrappedModel *wrapper, const char *instanceName, int fmuType, const char *guid, const char *resourceLocation, bool visible, bool loggingOn)
-{
-    // Supply static callback functions and the wrapper. The wrapper contains the callbacks of the enviroment.
-    fmi2CallbackFunctions callbacks = {
-        fmuLogCallback,
-        calloc,
-        free,
-        fmuStepFinished,
-        wrapper};
-    wrapper->component = wrapper->fmi2Instantiate(instanceName, fmuType, guid, resourceLocation, &callbacks, visible, loggingOn);
-}
-
-PUBLIC_EXPORT void fmi2FreeInstance(wrappedModel *wrapper)
-{
-    wrapper->fmi2FreeInstance(wrapper->component);
-}
 
 /* Enter and exit initialization mode, terminate and reset */
 
@@ -281,13 +310,14 @@ PUBLIC_EXPORT int fmi2GetInteger(wrappedModel *wrapper, const unsigned int vr[],
 PUBLIC_EXPORT int fmi2GetBoolean(wrappedModel *wrapper, const unsigned int vr[], size_t nvr, bool value[])
 {
     // fmi2Boolean is int and is larger than bool
-    fmi2Boolean val[nvr];
+    fmi2Boolean *val = malloc(sizeof(fmi2Boolean) * nvr);
     int result = wrapper->fmi2GetBoolean(wrapper->component, vr, nvr, val);
     // Convert to bool
     for (size_t i = 0; i < nvr; i++)
     {
         value[i] = (bool)val[i];
     }
+    free(val);
     return result;
 }
 
@@ -309,12 +339,14 @@ PUBLIC_EXPORT int fmi2SetInteger(wrappedModel *wrapper, const unsigned int vr[],
 PUBLIC_EXPORT int fmi2SetBoolean(wrappedModel *wrapper, const unsigned int vr[], size_t nvr, const bool value[])
 {
     // fmi2Boolean is int and is larger than bool
-    fmi2Boolean val[nvr];
+    fmi2Boolean *val = malloc(sizeof(fmi2Boolean) * nvr);
     for (size_t i = 0; i < nvr; i++)
     {
         val[i] = value[i];
     }
-    return wrapper->fmi2SetBoolean(wrapper->component, vr, nvr, val);
+    int result = wrapper->fmi2SetBoolean(wrapper->component, vr, nvr, val);
+    free(val);
+    return result;
 }
 
 PUBLIC_EXPORT int fmi2SetString(wrappedModel *wrapper, const unsigned int vr[], size_t nvr, const char *value[])
@@ -370,7 +402,7 @@ PUBLIC_EXPORT int fmi2EnterEventMode(wrappedModel *wrapper)
 PUBLIC_EXPORT int fmi2NewDiscreteStates(wrappedModel *wrapper, bool *newDiscreteStatesNeeded, bool *terminateSimulation, bool *nominalsOfContinuousStatesChanged, bool *valuesOfContinuousStatesChanged, bool *nextEventTimeDefined, double *nextEventTime)
 {
     // The struct is a pain to marshal so provide it here and update the reference values.
-    fmi2EventInfo info = {0};
+    fmi2EventInfo info = { 0 };
     int result = wrapper->fmi2NewDiscreteStates(wrapper->component, &info);
     *newDiscreteStatesNeeded = info.newDiscreteStatesNeeded;
     *terminateSimulation = info.terminateSimulation;

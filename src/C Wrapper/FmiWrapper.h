@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 /*!
-    \brief A wrapper to simplify using fmus in other languages. Written in C99.
+    \brief A wrapper to simplify using fmus in other languages. The API is supposed to stay as close the fmi2 standard API as possible.
 
     Especially the variadic parameter of fmi2CallbackFunctions are troublesome:
     The allocation and freeing of raw memory usually isn't supported by higher languages.
@@ -36,34 +36,28 @@ typedef void (*logCallback)(const char *instanceName, int status, const char *ca
 /*! A simplified stepFinished callback for the fmu. */
 typedef void (*stepFinishedCallback)(int status);
 
+/* Creation and destruction of FMU instances and setting debug status */
 
 /*!
-    \brief Create a wrapper for a fmu model.
+    \brief Create a instance of a fmu that uses the simplified callbacks.
     \param fileName The filename of the binary. Can be a relative or ideally a full path.
     \param logCallback This function will be called when the fmu logs.
     \param stepFinishedCallback This function will be called when a simulation step has finished.
-    \return A pointer to a component that wraps the fmu functions. Pass this pointer to the fmi2 function calls.
+    \param other These parameters match the ones from the fmi2 standard.
+    \return A pointer to a component that wraps the fmu functions. Pass this pointer to the fmi2 function calls. Returns NULL if it failed.
 */
-PUBLIC_EXPORT wrappedModel *createWrapper(const char *fileName, logCallback logCallback, stepFinishedCallback stepFinishedCallback);
+PUBLIC_EXPORT wrappedModel *fmi2Instantiate(const char *fileName, logCallback logCallback, stepFinishedCallback stepFinishedCallback,
+                                            const char *instanceName, int fmuType, const char *guid, const char *resourceLocation, bool visible, bool loggingOn);
 /*!
-    \brief Releases all handles and allocated memory.
-    \param wrapper Pointer returned from createWrapper.
+    \brief Releases the underlying fmu instance and the wrapper.
+    \param wrapper Pointer returned by createWrapper.
 */
-PUBLIC_EXPORT int freeWrapper(wrappedModel *wrapper);
-
-/* **************************************************
-Wrapper functions for the loaded fmu.
-Public functions of the Library.
-****************************************************/
+PUBLIC_EXPORT void fmi2FreeInstance(wrappedModel *wrapper);
+PUBLIC_EXPORT int fmi2SetDebugLogging(wrappedModel *wrapper, bool loggingOn, size_t nCategories, const char *categories[]);
 
 /* Inquire version numbers of header files and setting logging status */
 PUBLIC_EXPORT const char *fmi2GetTypesPlatform(wrappedModel *wrapper);
 PUBLIC_EXPORT const char *fmi2GetVersion(wrappedModel *wrapper);
-PUBLIC_EXPORT int fmi2SetDebugLogging(wrappedModel *wrapper, bool loggingOn, size_t nCategories, const char *categories[]);
-
-/* Creation and destruction of FMU instances and setting debug status */
-PUBLIC_EXPORT void fmi2Instantiate(wrappedModel *wrapper, const char *instanceName, int fmuType, const char *guid, const char *resourceLocation, bool visible, bool loggingOn);
-PUBLIC_EXPORT void fmi2FreeInstance(wrappedModel *wrapper);
 
 /* Enter and exit initialization mode, terminate and reset */
 PUBLIC_EXPORT int fmi2SetupExperiment(wrappedModel *wrapper, bool toleranceDefined, double tolerance, double startTime, bool stopTimeDefined, double stopTime);
