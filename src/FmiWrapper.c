@@ -284,7 +284,7 @@ PUBLIC_EXPORT int fmi2GetBoolean(wrappedModel *wrapper, const unsigned int vr[],
     fmi2Boolean val[nvr];
     int result = wrapper->fmi2GetBoolean(wrapper->component, vr, nvr, val);
     // Convert to bool
-    for (int i = 0; i < nvr; i++)
+    for (size_t i = 0; i < nvr; i++)
     {
         value[i] = (bool)val[i];
     }
@@ -310,7 +310,7 @@ PUBLIC_EXPORT int fmi2SetBoolean(wrappedModel *wrapper, const unsigned int vr[],
 {
     // fmi2Boolean is int and is larger than bool
     fmi2Boolean val[nvr];
-    for (int i = 0; i < nvr; i++)
+    for (size_t i = 0; i < nvr; i++)
     {
         val[i] = value[i];
     }
