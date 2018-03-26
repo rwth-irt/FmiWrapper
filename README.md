@@ -1,5 +1,5 @@
 # FmiWrapper
-Simplified interface to call fmi2 models from different languages.
+Simplified interface to call fmi2 models (see http://fmi-standard.org/) from different languages.
 
 ## Usage
 The core of this function is located in the "C Code" directory. SystemFunctions.h provides the simplified interface which can be exported to a shared library. Use make with gcc or the VisualStudio solution to build the shared library.
