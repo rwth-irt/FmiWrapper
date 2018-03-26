@@ -1,4 +1,4 @@
-#include "SystemFunctions.h"
+#include "system_functions.h"
 
 #if defined _WIN32
 #include <windows.h>

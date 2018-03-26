@@ -9,4 +9,4 @@ Additionally the VisualStudio solution provides a wrapper for .NET written in C#
 ## Build notes
 - Written in C99
 - Comments for doxygen using qt format
-- Built successfully with mingw-w64 & VisualStudio on Windows
+- Built has been tested using CMake with VS 2017
