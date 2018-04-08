@@ -43,7 +43,7 @@ namespace FmiWrapper_Net
         [DllImport("FmiWrapper.dll", EntryPoint = "instantiate", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr Instantiate([MarshalAs(UnmanagedType.LPStr)] string fileName,
             LogCallback logCallback, StepFinishedCallback stepFinishedCallback,
-            [MarshalAs(UnmanagedType.LPStr)] string instanceName, int fmuType, [MarshalAs(UnmanagedType.LPStr)] string guid,
+            [MarshalAs(UnmanagedType.LPStr)] string instanceName, Fmi2Type fmuType, [MarshalAs(UnmanagedType.LPStr)] string guid,
             [MarshalAs(UnmanagedType.LPStr)] string resourceLocation, bool visible, bool loggingOn);
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace FmiWrapper_Net
 
         [DllImport("FmiWrapper.dll", EntryPoint = "set_debug_logging", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int SetDebugLogging(IntPtr wrapper, bool loggingOn, int nCategories, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] string[] categories);
-        
+
         /* Inquire version numbers of header files and setting logging status */
 
         /// <summary>
@@ -77,18 +77,23 @@ namespace FmiWrapper_Net
         /* Enter and exit initialization mode, terminate and reset */
 
         [DllImport("FmiWrapper.dll", EntryPoint = "setup_experiment", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int SetupExperiment(IntPtr wrapper, bool toleranceDefined, double tolerance, double startTime, bool stopTimeDefined, double stopTime);
+        internal static extern Fmi2Status SetupExperiment(IntPtr wrapper, bool toleranceDefined, double tolerance, double startTime, bool stopTimeDefined, double stopTime);
 
         [DllImport("FmiWrapper.dll", EntryPoint = "enter_initialization_mode", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int EnterInitializationMode(IntPtr wrapper);
+        internal static extern Fmi2Status EnterInitializationMode(IntPtr wrapper);
 
         [DllImport("FmiWrapper.dll", EntryPoint = "exit_initialization_mode", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int ExitInitializationMode(IntPtr wrapper);
+        internal static extern Fmi2Status ExitInitializationMode(IntPtr wrapper);
 
         [DllImport("FmiWrapper.dll", EntryPoint = "terminate", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int Terminate(IntPtr wrapper);
+        internal static extern Fmi2Status Terminate(IntPtr wrapper);
 
         [DllImport("FmiWrapper.dll", EntryPoint = "reset", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int Reset(IntPtr wrapper);
+        internal static extern Fmi2Status Reset(IntPtr wrapper);
+
+        /* Getting and setting the internal FMU state */
+
+        [DllImport("FmiWrapper.dll", EntryPoint = "get_real", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Fmi2Status GetReal(IntPtr wrapper, uint[] vr, UIntPtr nvr, double[] value);
     }
 }

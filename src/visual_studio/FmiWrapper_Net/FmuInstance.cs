@@ -45,7 +45,7 @@ namespace FmiWrapper_Net
         /// <param name="resourceLocation"></param>
         /// <param name="visible"></param>
         /// <param name="loggingOn"></param>
-        public void Instantiate(string instanceName, int fmuType, string guid, string resourceLocation, bool visible, bool loggingOn)
+        public void Instantiate(string instanceName, Fmi2Type fmuType, string guid, string resourceLocation, bool visible, bool loggingOn)
         {
             // Only instantiate if no instance is stored
             if (wrapper == IntPtr.Zero)
@@ -124,6 +124,21 @@ namespace FmiWrapper_Net
             else
                 return Fmi2Status.fmi2Fatal;
 
+        }
+
+        /// <summary>
+        /// Returns the values for the value references as out parameter.
+        /// </summary>
+        /// <param name="vr"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public Fmi2Status GetReal(uint[] vr, out double[] value)
+        {
+            value = new double[vr.Length];
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetReal(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+            else
+                return Fmi2Status.fmi2Fatal;
         }
 
         #region IDisposable Support

@@ -1,5 +1,6 @@
 ﻿using System;
 using FmiWrapper_Net;
+using System.Linq;
 
 namespace TestFmiWrapper
 {
@@ -11,12 +12,15 @@ namespace TestFmiWrapper
             {
                 fmu.Log += Fmu_Log;
                 fmu.StepFinished += Fmu_StepFinished;
-                fmu.Instantiate("TestInstance", 1, "{d469a761-6eeb-4434-be44-77019e248cbe}", "", false, true);
+                fmu.Instantiate("TestInstance", Fmi2Type.fmi2CoSimulation, "{d469a761-6eeb-4434-be44-77019e248cbe}", "", false, true);
                 Console.WriteLine("Types platform: " + fmu.GetTypesPlatform());
                 Console.WriteLine("Version: " + fmu.GetVersion());
                 fmu.SetupExperiment(false, 0, 0, false, int.MaxValue);
                 fmu.EnterInitializationMode();
                 fmu.ExitInitializationMode();
+                uint[] realVr = { 16777216, 905969664 };
+                fmu.GetReal(realVr, out double[] realValues);
+                Console.WriteLine("Real values: " + String.Join("; ", realValues.Select(p => p.ToString()).ToArray()));
                 fmu.Reset();
                 fmu.Terminate();
             }

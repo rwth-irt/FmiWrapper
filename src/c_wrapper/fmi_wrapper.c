@@ -217,7 +217,7 @@ void free_wrapper(wrapped_fmu *wrapper)
 /* Creation and destruction of FMU instances and setting debug status */
 
 PUBLIC_EXPORT wrapped_fmu *instantiate(const char *file_name, log_t log, step_finished_t step_finished,
-                                       const char *instance_name, int fmu_type, const char *guid, const char *resource_location, bool visible, bool logging_on)
+                                       fmi2String instance_name, fmi2Type fmu_type, fmi2String guid, fmi2String resource_location, fmi2Boolean visible, fmi2Boolean logging_on)
 {
     // Load the functions from the binary
     wrapped_fmu *wrapper = create_wrapper(file_name, log, step_finished);
@@ -232,7 +232,7 @@ PUBLIC_EXPORT wrapped_fmu *instantiate(const char *file_name, log_t log, step_fi
         calloc,
         free,
         fmuStepFinished,
-        wrapper};
+        wrapper };
     memcpy(wrapper->callback_functions, &callbacks, sizeof(*wrapper->callback_functions));
     // Instantiate the fmu
     wrapper->component = wrapper->instantiate(instance_name, fmu_type, guid, resource_location, wrapper->callback_functions, visible, logging_on);
@@ -263,127 +263,110 @@ PUBLIC_EXPORT const char *get_version(wrapped_fmu *wrapper)
     return wrapper->get_version();
 }
 
-PUBLIC_EXPORT int set_debug_logging(wrapped_fmu *wrapper, bool logging_on, size_t n_categories, const char *categories[])
+PUBLIC_EXPORT int set_debug_logging(wrapped_fmu *wrapper, fmi2Boolean logging_on, size_t n_categories, fmi2String categories[])
 {
     return wrapper->set_debug_logging(wrapper->component, logging_on, n_categories, categories);
 }
 
 /* Enter and exit initialization mode, terminate and reset */
 
-PUBLIC_EXPORT int setup_experiment(wrapped_fmu *wrapper, bool tolerance_defined, double tolerance, double start_time, bool stop_time_defined, double stop_time)
+PUBLIC_EXPORT fmi2Status setup_experiment(wrapped_fmu *wrapper, fmi2Boolean tolerance_defined, double tolerance, double start_time, fmi2Boolean stop_time_defined, double stop_time)
 {
     return wrapper->setup_experiment(wrapper->component, tolerance_defined, tolerance, start_time, stop_time_defined, stop_time);
 }
 
-PUBLIC_EXPORT int enter_initialization_mode(wrapped_fmu *wrapper)
+PUBLIC_EXPORT fmi2Status enter_initialization_mode(wrapped_fmu *wrapper)
 {
     return wrapper->enter_initialization_mode(wrapper->component);
 }
 
-PUBLIC_EXPORT int exit_initialization_mode(wrapped_fmu *wrapper)
+PUBLIC_EXPORT fmi2Status exit_initialization_mode(wrapped_fmu *wrapper)
 {
     return wrapper->exit_initialization_mode(wrapper->component);
 }
 
-PUBLIC_EXPORT int terminate(wrapped_fmu *wrapper)
+PUBLIC_EXPORT fmi2Status terminate(wrapped_fmu *wrapper)
 {
     return wrapper->terminate(wrapper->component);
 }
 
-PUBLIC_EXPORT int reset(wrapped_fmu *wrapper)
+PUBLIC_EXPORT fmi2Status reset(wrapped_fmu *wrapper)
 {
     return wrapper->reset(wrapper->component);
 }
 
 /* Getting and setting variable values */
-PUBLIC_EXPORT int get_real(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, double value[])
+PUBLIC_EXPORT fmi2Status get_real(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, double value[])
 {
     return wrapper->get_real(wrapper->component, vr, nvr, value);
 }
 
-PUBLIC_EXPORT int get_integer(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, int value[])
+PUBLIC_EXPORT fmi2Status get_integer(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, int value[])
 {
     return wrapper->get_integer(wrapper->component, vr, nvr, value);
 }
 
-PUBLIC_EXPORT int get_boolean(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, bool value[])
+PUBLIC_EXPORT fmi2Status get_boolean(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, fmi2Boolean value[])
 {
-    // fmi2Boolean is int and is larger than bool
-    fmi2Boolean *val = malloc(sizeof(fmi2Boolean) * nvr);
-    int result = wrapper->get_boolean(wrapper->component, vr, nvr, val);
-    // Convert to bool
-    for (size_t i = 0; i < nvr; i++)
-    {
-        value[i] = (bool)val[i];
-    }
-    free(val);
-    return result;
+    return wrapper->get_boolean(wrapper->component, vr, nvr, value);
 }
 
-PUBLIC_EXPORT int get_string(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, const char *value[])
+PUBLIC_EXPORT fmi2Status get_string(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, fmi2String value[])
 {
     return wrapper->get_string(wrapper->component, vr, nvr, value);
 }
 
-PUBLIC_EXPORT int set_real(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, const double value[])
+PUBLIC_EXPORT fmi2Status set_real(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, const double value[])
 {
     return wrapper->set_real(wrapper->component, vr, nvr, value);
 }
 
-PUBLIC_EXPORT int set_integer(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, const int value[])
+PUBLIC_EXPORT fmi2Status set_integer(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, const int value[])
 {
     return wrapper->set_integer(wrapper->component, vr, nvr, value);
 }
 
-PUBLIC_EXPORT int set_boolean(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, const bool value[])
+PUBLIC_EXPORT fmi2Status set_boolean(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, const fmi2Boolean value[])
 {
-    // fmi2Boolean is int and is larger than bool
-    fmi2Boolean *val = malloc(sizeof(fmi2Boolean) * nvr);
-    for (size_t i = 0; i < nvr; i++)
-    {
-        val[i] = value[i];
-    }
-    int result = wrapper->set_boolean(wrapper->component, vr, nvr, val);
-    free(val);
-    return result;
+    return wrapper->set_boolean(wrapper->component, vr, nvr, value);
 }
 
-PUBLIC_EXPORT int set_string(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, const char *value[])
+PUBLIC_EXPORT fmi2Status set_string(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, const fmi2String value[])
 {
     return wrapper->set_string(wrapper->component, vr, nvr, value);
 }
 
 /* Getting and setting the internal FMU state */
-PUBLIC_EXPORT int get_fmu_state(wrapped_fmu *wrapper, void **fmu_state)
+PUBLIC_EXPORT fmi2Status get_fmu_state(wrapped_fmu *wrapper, fmi2FMUstate *fmu_state)
 {
     return wrapper->get_fmu_state(wrapper->component, fmu_state);
 }
-PUBLIC_EXPORT int set_fmu_state(wrapped_fmu *wrapper, void *fmu_state)
+PUBLIC_EXPORT fmi2Status set_fmu_state(wrapped_fmu *wrapper, fmi2FMUstate fmu_state)
 {
     return wrapper->set_fmu_state(wrapper->component, fmu_state);
 }
-PUBLIC_EXPORT int free_fmu_state(wrapped_fmu *wrapper, void **fmu_state)
+PUBLIC_EXPORT fmi2Status free_fmu_state(wrapped_fmu *wrapper, fmi2FMUstate *fmu_state)
 {
     return wrapper->free_fmu_state(wrapper->component, fmu_state);
 }
-PUBLIC_EXPORT int serialized_fmu_state_size(wrapped_fmu *wrapper, void *fmu_state, size_t *size)
+PUBLIC_EXPORT fmi2Status serialized_fmu_state_size(wrapped_fmu *wrapper, fmi2FMUstate fmu_state, size_t *size)
 {
     return wrapper->serialized_fmu_state_size(wrapper->component, fmu_state, size);
 }
-PUBLIC_EXPORT int serialize_fmu_state(wrapped_fmu *wrapper, void *fmu_state, char serialized_state[], size_t size)
+PUBLIC_EXPORT fmi2Status serialize_fmu_state(wrapped_fmu *wrapper, fmi2FMUstate fmu_state, fmi2Byte serialized_state[], size_t size)
 {
     return wrapper->serialize_fmu_state(wrapper->component, fmu_state, serialized_state, size);
 }
 
-PUBLIC_EXPORT int deserialize_fmu_state(wrapped_fmu *wrapper, const char serialized_state[], size_t size, void **fmu_state)
+PUBLIC_EXPORT fmi2Status deserialize_fmu_state(wrapped_fmu *wrapper, const fmi2Byte serialized_state[], size_t size,fmi2FMUstate *fmu_state)
 {
     return wrapper->deserialize_fmu_state(wrapper->component, serialized_state, size, fmu_state);
 }
 
 /* Getting partial derivatives */
-PUBLIC_EXPORT int get_directional_derivative(wrapped_fmu *wrapper, const unsigned int v_unknown_ref[], size_t n_unknown,
-                                             const unsigned int v_known_ref[], size_t n_known,
-                                             const double dv_known[], double dv_unknown[])
+PUBLIC_EXPORT fmi2Status get_directional_derivative(wrapped_fmu *wrapper, const fmi2ValueReference v_unknown_ref[], size_t n_unknown,
+                                                    const fmi2ValueReference v_known_ref[], size_t n_known,
+                                                    const double dv_known[], double dv_unknown[])
 {
     return wrapper->get_directional_derivative(wrapper->component, v_unknown_ref, n_unknown, v_known_ref, n_known, dv_known, dv_unknown);
 }
@@ -393,18 +376,18 @@ Typess for Functions for FMI2 for Model Exchange
 ****************************************************/
 
 /* Enter and exit the different modes */
-PUBLIC_EXPORT int enter_event_mode(wrapped_fmu *wrapper)
+PUBLIC_EXPORT fmi2Status enter_event_mode(wrapped_fmu *wrapper)
 {
     return wrapper->enter_event_mode(wrapper->component);
 }
 
-PUBLIC_EXPORT int new_discrete_states(wrapped_fmu *wrapper, bool *new_discrete_states_needed, bool *terminate_simulation,
-                                      bool *nominals_of_continuous_states_changed, bool *values_of_continuous_states_changed,
-                                      bool *next_event_time_defined, double *next_event_time)
+PUBLIC_EXPORT fmi2Status new_discrete_states(wrapped_fmu *wrapper, fmi2Boolean *new_discrete_states_needed, fmi2Boolean *terminate_simulation,
+                                             fmi2Boolean *nominals_of_continuous_states_changed, fmi2Boolean *values_of_continuous_states_changed,
+                                             fmi2Boolean *next_event_time_defined, double *next_event_time)
 {
     // The struct is a pain to marshal so provide it here and update the reference values.
-    fmi2EventInfo info = {0};
-    int result = wrapper->new_discrete_states(wrapper->component, &info);
+    fmi2EventInfo info = { 0 };
+    fmi2Status result = wrapper->new_discrete_states(wrapper->component, &info);
     *new_discrete_states_needed = info.newDiscreteStatesNeeded;
     *terminate_simulation = info.terminateSimulation;
     *nominals_of_continuous_states_changed = info.nominalsOfContinuousStatesChanged;
@@ -414,50 +397,45 @@ PUBLIC_EXPORT int new_discrete_states(wrapped_fmu *wrapper, bool *new_discrete_s
     return result;
 }
 
-PUBLIC_EXPORT int enter_continuous_time_mode(wrapped_fmu *wrapper)
+PUBLIC_EXPORT fmi2Status enter_continuous_time_mode(wrapped_fmu *wrapper)
 {
     return wrapper->enter_continuous_time_mode(wrapper->component);
 }
 
-PUBLIC_EXPORT int completed_integrator_step(wrapped_fmu *wrapper, bool no_set_fmu_state_prior_to_current_point, bool *enter_event_mode, bool *terminate_simulation)
+PUBLIC_EXPORT fmi2Status completed_integrator_step(wrapped_fmu *wrapper, fmi2Boolean no_set_fmu_state_prior_to_current_point, fmi2Boolean *enter_event_mode, fmi2Boolean *terminate_simulation)
 {
-    // fmi2Boolean is larger than bool so cast a bit
-    fmi2Boolean eem;
-    fmi2Boolean ts;
-    int result = wrapper->completed_integrator_step(wrapper->component, no_set_fmu_state_prior_to_current_point, &eem, &ts);
-    *enter_event_mode = (bool)eem;
-    *terminate_simulation = (bool)ts;
+    fmi2Status result = wrapper->completed_integrator_step(wrapper->component, no_set_fmu_state_prior_to_current_point, enter_event_mode, terminate_simulation);
     return result;
 }
 
 /* Providing independent variables and re-initialization of caching */
-PUBLIC_EXPORT int set_time(wrapped_fmu *wrapper, double time)
+PUBLIC_EXPORT fmi2Status set_time(wrapped_fmu *wrapper, double time)
 {
     return wrapper->set_time(wrapper->component, time);
 }
 
-PUBLIC_EXPORT int set_continuous_states(wrapped_fmu *wrapper, const double x[], size_t nx)
+PUBLIC_EXPORT fmi2Status set_continuous_states(wrapped_fmu *wrapper, const double x[], size_t nx)
 {
     return wrapper->set_continuous_states(wrapper->component, x, nx);
 }
 
 /* Evaluation of the model equations */
-PUBLIC_EXPORT int get_derivatives(wrapped_fmu *wrapper, double derivatives[], size_t nx)
+PUBLIC_EXPORT fmi2Status get_derivatives(wrapped_fmu *wrapper, double derivatives[], size_t nx)
 {
     return wrapper->get_derivatives(wrapper->component, derivatives, nx);
 }
 
-PUBLIC_EXPORT int get_event_indicators(wrapped_fmu *wrapper, double eventIndicators[], size_t ni)
+PUBLIC_EXPORT fmi2Status get_event_indicators(wrapped_fmu *wrapper, double eventIndicators[], size_t ni)
 {
     return wrapper->get_event_indicators(wrapper->component, eventIndicators, ni);
 }
 
-PUBLIC_EXPORT int get_continuous_states(wrapped_fmu *wrapper, double x[], size_t nx)
+PUBLIC_EXPORT fmi2Status get_continuous_states(wrapped_fmu *wrapper, double x[], size_t nx)
 {
     return wrapper->get_continuous_states(wrapper->component, x, nx);
 }
 
-PUBLIC_EXPORT int get_nominals_of_continuous_states(wrapped_fmu *wrapper, double x_nominal[], size_t nx)
+PUBLIC_EXPORT fmi2Status get_nominals_of_continuous_states(wrapped_fmu *wrapper, double x_nominal[], size_t nx)
 {
     return wrapper->get_nominals_of_continuous_states(wrapper->component, x_nominal, nx);
 }
@@ -467,51 +445,51 @@ Types for Functions for FMI2 for Co-Simulation
 ****************************************************/
 
 /* Simulating the slave */
-PUBLIC_EXPORT int set_real_input_derivatives(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, const int order[], const double value[])
+PUBLIC_EXPORT fmi2Status set_real_input_derivatives(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, const int order[], const double value[])
 {
     return wrapper->set_real_input_derivatives(wrapper->component, vr, nvr, order, value);
 }
 
-PUBLIC_EXPORT int get_real_output_derivatives(wrapped_fmu *wrapper, const unsigned int vr[], size_t nvr, const int order[], double value[])
+PUBLIC_EXPORT fmi2Status get_real_output_derivatives(wrapped_fmu *wrapper, const fmi2ValueReference vr[], size_t nvr, const int order[], double value[])
 {
     return wrapper->get_real_output_derivatives(wrapper->component, vr, nvr, order, value);
 }
 
-PUBLIC_EXPORT int do_step(wrapped_fmu *wrapper, double current_communication_point, double communication_step_size, bool no_set_fmu_state_prior_to_current_point)
+PUBLIC_EXPORT fmi2Status do_step(wrapped_fmu *wrapper, double current_communication_point, double communication_step_size, fmi2Boolean no_set_fmu_state_prior_to_current_point)
 {
     return wrapper->do_step(wrapper->component, current_communication_point, communication_step_size, no_set_fmu_state_prior_to_current_point);
 }
 
-PUBLIC_EXPORT int cancel_step(wrapped_fmu *wrapper)
+PUBLIC_EXPORT fmi2Status cancel_step(wrapped_fmu *wrapper)
 {
     return wrapper->cancel_step(wrapper->component);
 }
 
 /* Inquire slave status */
-PUBLIC_EXPORT int get_status(wrapped_fmu *wrapper, const int status_kind, int *value)
+PUBLIC_EXPORT fmi2Status get_status(wrapped_fmu *wrapper, const int status_kind, fmi2Status *value)
 {
     // Pass in the original enum and then cast it to int
     fmi2Status val;
-    int result = wrapper->get_status(wrapper->component, status_kind, &val);
+    fmi2Status result = wrapper->get_status(wrapper->component, status_kind, &val);
     *value = val;
     return result;
 }
 
-PUBLIC_EXPORT int get_real_status(wrapped_fmu *wrapper, const int status_kind, double *value)
+PUBLIC_EXPORT fmi2Status get_real_status(wrapped_fmu *wrapper, const int status_kind, double *value)
 {
     return wrapper->get_real_status(wrapper->component, status_kind, value);
 }
 
-PUBLIC_EXPORT int get_integer_status(wrapped_fmu *wrapper, const int status_kind, int *value)
+PUBLIC_EXPORT fmi2Status get_integer_status(wrapped_fmu *wrapper, const int status_kind, int *value)
 {
     return wrapper->get_integer_status(wrapper->component, status_kind, value);
 }
 
-PUBLIC_EXPORT int get_boolean_status(wrapped_fmu *wrapper, const int status_kind, int *value)
+PUBLIC_EXPORT fmi2Status get_boolean_status(wrapped_fmu *wrapper, const int status_kind, int *value)
 {
     return wrapper->get_boolean_status(wrapper->component, status_kind, value);
 }
-PUBLIC_EXPORT int get_string_status(wrapped_fmu *wrapper, const int status_kind, const char **value)
+PUBLIC_EXPORT fmi2Status get_string_status(wrapped_fmu *wrapper, const int status_kind, fmi2String *value)
 {
     return wrapper->get_string_status(wrapper->component, status_kind, value);
 }
