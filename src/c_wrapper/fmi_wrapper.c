@@ -217,7 +217,7 @@ void free_wrapper(wrapped_fmu *wrapper)
 /* Creation and destruction of FMU instances and setting debug status */
 
 PUBLIC_EXPORT wrapped_fmu *instantiate(const char *file_name, log_t log, step_finished_t step_finished,
-                                            const char *instance_name, int fmu_type, const char *guid, const char *resource_location, bool visible, bool logging_on)
+                                       const char *instance_name, int fmu_type, const char *guid, const char *resource_location, bool visible, bool logging_on)
 {
     // Load the functions from the binary
     wrapped_fmu *wrapper = create_wrapper(file_name, log, step_finished);
@@ -232,13 +232,13 @@ PUBLIC_EXPORT wrapped_fmu *instantiate(const char *file_name, log_t log, step_fi
         calloc,
         free,
         fmuStepFinished,
-        wrapper };
+        wrapper};
     memcpy(wrapper->callback_functions, &callbacks, sizeof(*wrapper->callback_functions));
     // Instantiate the fmu
     wrapper->component = wrapper->instantiate(instance_name, fmu_type, guid, resource_location, wrapper->callback_functions, visible, logging_on);
     if (wrapper->component == NULL)
     {
-        // Failed to instantiate return null
+        // Failed, release the wrapper
         free_wrapper(wrapper);
         return NULL;
     }
@@ -267,7 +267,6 @@ PUBLIC_EXPORT int set_debug_logging(wrapped_fmu *wrapper, bool logging_on, size_
 {
     return wrapper->set_debug_logging(wrapper->component, logging_on, n_categories, categories);
 }
-
 
 /* Enter and exit initialization mode, terminate and reset */
 
@@ -383,8 +382,8 @@ PUBLIC_EXPORT int deserialize_fmu_state(wrapped_fmu *wrapper, const char seriali
 
 /* Getting partial derivatives */
 PUBLIC_EXPORT int get_directional_derivative(wrapped_fmu *wrapper, const unsigned int v_unknown_ref[], size_t n_unknown,
-                                               const unsigned int v_known_ref[], size_t n_known,
-                                               const double dv_known[], double dv_unknown[])
+                                             const unsigned int v_known_ref[], size_t n_known,
+                                             const double dv_known[], double dv_unknown[])
 {
     return wrapper->get_directional_derivative(wrapper->component, v_unknown_ref, n_unknown, v_known_ref, n_known, dv_known, dv_unknown);
 }
@@ -404,7 +403,7 @@ PUBLIC_EXPORT int new_discrete_states(wrapped_fmu *wrapper, bool *new_discrete_s
                                       bool *next_event_time_defined, double *next_event_time)
 {
     // The struct is a pain to marshal so provide it here and update the reference values.
-    fmi2EventInfo info = { 0 };
+    fmi2EventInfo info = {0};
     int result = wrapper->new_discrete_states(wrapper->component, &info);
     *new_discrete_states_needed = info.newDiscreteStatesNeeded;
     *terminate_simulation = info.terminateSimulation;

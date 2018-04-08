@@ -15,36 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="..\..\c_wrapper\fmi_wrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="..\..\c_wrapper\fmi2FunctionTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\C\fmi2FunctionTypes.h">
+    <ClInclude Include="..\..\c_wrapper\fmi2TypesPlatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\C\fmi2TypesPlatform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\C\FmiWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\C\SystemFunctions.h">
+    <ClInclude Include="..\..\c_wrapper\system_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="..\..\c_wrapper\fmi_wrapper.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\C\FmiWrapper.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\C\SystemFunctions.c">
+    <ClCompile Include="..\..\c_wrapper\system_functions.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
