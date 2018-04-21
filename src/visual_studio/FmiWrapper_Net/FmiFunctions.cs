@@ -95,5 +95,8 @@ namespace FmiWrapper_Net
 
         [DllImport("FmiWrapper.dll", EntryPoint = "get_real", CallingConvention = CallingConvention.Cdecl)]
         internal static extern Fmi2Status GetReal(IntPtr wrapper, uint[] vr, UIntPtr nvr, double[] value);
+
+        [DllImport("FmiWrapper.dll", EntryPoint = "get_string", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Fmi2Status GetString(IntPtr wrapper, uint[] vr, UIntPtr nvr,  IntPtr[] value);
     }
 }

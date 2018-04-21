@@ -21,6 +21,10 @@ namespace FmiWrapperConsole
                 uint[] realVr = { 16777216, 905969664 };
                 fmu.GetReal(realVr, out double[] realValues);
                 Console.WriteLine("Real values: " + String.Join("; ", realValues.Select(p => p.ToString()).ToArray()));
+                uint[] stringVr = { 42, 666 };
+                Console.WriteLine("Press enter to continue");
+                fmu.GetString(stringVr, out string[] stringValues);
+                Console.WriteLine("String values: " + String.Join("; ", stringValues));
                 fmu.Reset();
                 fmu.Terminate();
             }

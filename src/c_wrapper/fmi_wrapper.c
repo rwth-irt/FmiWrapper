@@ -358,7 +358,7 @@ PUBLIC_EXPORT fmi2Status serialize_fmu_state(wrapped_fmu *wrapper, fmi2FMUstate 
     return wrapper->serialize_fmu_state(wrapper->component, fmu_state, serialized_state, size);
 }
 
-PUBLIC_EXPORT fmi2Status deserialize_fmu_state(wrapped_fmu *wrapper, const fmi2Byte serialized_state[], size_t size,fmi2FMUstate *fmu_state)
+PUBLIC_EXPORT fmi2Status deserialize_fmu_state(wrapped_fmu *wrapper, const fmi2Byte serialized_state[], size_t size, fmi2FMUstate *fmu_state)
 {
     return wrapper->deserialize_fmu_state(wrapper->component, serialized_state, size, fmu_state);
 }

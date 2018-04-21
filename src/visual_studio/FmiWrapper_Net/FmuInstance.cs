@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace FmiWrapper_Net
@@ -137,6 +136,20 @@ namespace FmiWrapper_Net
             value = new double[vr.Length];
             if (wrapper != IntPtr.Zero)
                 return (Fmi2Status)FmiFunctions.GetReal(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status GetString(uint[] vr, out string[] value)
+        {
+            value = new string[vr.Length];
+            if (wrapper != IntPtr.Zero)
+            {
+                var valuePtrs = new IntPtr[vr.Length];
+                var status = (Fmi2Status)FmiFunctions.GetString(wrapper, vr, new UIntPtr((ulong)vr.Length), valuePtrs);
+                value = valuePtrs.Select((ptr) => Marshal.PtrToStringAnsi(ptr)).ToArray();
+                return status;
+            }
             else
                 return Fmi2Status.fmi2Fatal;
         }

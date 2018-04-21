@@ -5,6 +5,10 @@
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\FmiWrapper\FmiWrapper.vcxproj">
       <Project>{43EE7333-6623-4B1B-B1EB-68FA7D987133}</Project>
