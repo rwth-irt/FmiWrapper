@@ -15,7 +15,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\FmiWrapper_Net\FmiWrapper_Net.csproj" />
   </ItemGroup>
