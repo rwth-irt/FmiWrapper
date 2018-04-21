@@ -5,4 +5,21 @@
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FmiWrapper\FmiWrapper.vcxproj">
+      <Project>{43EE7333-6623-4B1B-B1EB-68FA7D987133}</Project>
+      <Name>FmiWrapper</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\FmiWrapper\bin\$(Platform)\$(Configuration)\FmiWrapper.dll" Link="FmiWrapper.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FmiWrapper\bin\$(Platform)\$(Configuration)\FmiWrapper.pdb" Link="FmiWrapper.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

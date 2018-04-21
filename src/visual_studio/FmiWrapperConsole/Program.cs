@@ -2,7 +2,7 @@
 using FmiWrapper_Net;
 using System.Linq;
 
-namespace TestFmiWrapper
+namespace FmiWrapperConsole
 {
     class Program
     {
