@@ -164,7 +164,7 @@ namespace FmiWrapper_Net
         [DllImport("FmiWrapper.dll", EntryPoint = "completed_integrator_step", CallingConvention = CallingConvention.Cdecl)]
         internal static extern Fmi2Status CompletedIntegratorStep(IntPtr wrapper,
             [MarshalAs(UnmanagedType.Bool)] bool noSetFmuStatePriorToCurrentPoint,
-            [MarshalAs(UnmanagedType.Bool)] ref bool enter_event_mode,
+            [MarshalAs(UnmanagedType.Bool)] ref bool enterEventMode,
             [MarshalAs(UnmanagedType.Bool)] ref bool terminateSimulation);
 
         #endregion
@@ -209,10 +209,9 @@ namespace FmiWrapper_Net
         [DllImport("FmiWrapper.dll", EntryPoint = "get_real_output_derivatives", CallingConvention = CallingConvention.Cdecl)]
         internal static extern Fmi2Status GetRealOutputDerivatives(IntPtr wrapper, uint[] vr, UIntPtr nvr, int[] order, [Out] double[] value);
 
-
         [DllImport("FmiWrapper.dll", EntryPoint = "do_step", CallingConvention = CallingConvention.Cdecl)]
-
-        internal static extern Fmi2Status DoStep(IntPtr wrapper, double currentCommunicationPoint, double communicationStepSize,
+        internal static extern Fmi2Status DoStep(IntPtr wrapper,
+            double currentCommunicationPoint, double communicationStepSize,
             [MarshalAs(UnmanagedType.Bool)] bool noSetFmuStatePriorToCurrentPoint);
 
         [DllImport("FmiWrapper.dll", EntryPoint = "cancel_step", CallingConvention = CallingConvention.Cdecl)]
@@ -234,6 +233,13 @@ namespace FmiWrapper_Net
         [DllImport("FmiWrapper.dll", EntryPoint = "get_boolean_status", CallingConvention = CallingConvention.Cdecl)]
         internal static extern Fmi2Status GetBooleanStatus(IntPtr wrapper, Fmi2StatusKind statusKind, [MarshalAs(UnmanagedType.Bool)] ref bool value);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="wrapper"></param>
+        /// <param name="statusKind"></param>
+        /// <param name="value">Evaluteate with Marshal.PtrToStringAnsi.</param>
+        /// <returns></returns>
         [DllImport("FmiWrapper.dll", EntryPoint = "get_string_status", CallingConvention = CallingConvention.Cdecl)]
         internal static extern Fmi2Status GetStringStatus(IntPtr wrapper, Fmi2StatusKind statusKind, IntPtr value);
 

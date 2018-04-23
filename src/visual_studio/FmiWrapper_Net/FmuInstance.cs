@@ -137,40 +137,36 @@ namespace FmiWrapper_Net
 
         #region Getting and setting variables values 
 
-        public Fmi2Status GetReal(uint[] vr, out double[] value)
+        public Fmi2Status GetReal(uint[] vr, double[] value)
         {
-            value = new double[vr.Length];
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetReal(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+                return (Fmi2Status)FmiFunctions.GetReal(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
 
-        public Fmi2Status GetInteger(uint[] vr, out int[] value)
+        public Fmi2Status GetInteger(uint[] vr, int[] value)
         {
-            value = new int[vr.Length];
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetInteger(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+                return (Fmi2Status)FmiFunctions.GetInteger(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
 
-        public Fmi2Status GetBoolean(uint[] vr, out bool[] value)
+        public Fmi2Status GetBoolean(uint[] vr, bool[] value)
         {
-            value = new bool[vr.Length];
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetBoolean(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+                return (Fmi2Status)FmiFunctions.GetBoolean(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
 
-        public Fmi2Status GetString(uint[] vr, out string[] value)
+        public Fmi2Status GetString(uint[] vr, string[] value)
         {
-            value = new string[vr.Length];
             if (wrapper != IntPtr.Zero)
             {
                 var valuePtrs = new IntPtr[vr.Length];
-                var status = (Fmi2Status)FmiFunctions.GetString(wrapper, vr, new UIntPtr((ulong)vr.Length), valuePtrs);
+                var status = (Fmi2Status)FmiFunctions.GetString(wrapper, vr, new UIntPtr((uint)vr.Length), valuePtrs);
                 value = valuePtrs
                     .Select((p) => Marshal.PtrToStringAnsi(p))
                     .ToArray();
@@ -184,7 +180,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetReal(uint[] vr, double[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetReal(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+                return (Fmi2Status)FmiFunctions.SetReal(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -192,7 +188,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetInteger(uint[] vr, int[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetInteger(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+                return (Fmi2Status)FmiFunctions.SetInteger(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -200,7 +196,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetBoolean(uint[] vr, bool[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetBoolean(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+                return (Fmi2Status)FmiFunctions.SetBoolean(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -208,10 +204,240 @@ namespace FmiWrapper_Net
         public Fmi2Status SetString(uint[] vr, string[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetString(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+                return (Fmi2Status)FmiFunctions.SetString(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
+
+        #endregion
+
+        #region Types for Functions for FMI2 for Model Exchange
+
+        #region Enter and exit the different modes
+
+        public Fmi2Status EnterEventMode()
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.EnterEventMode(wrapper);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status NewDiscreteStates(out Fmi2EventInfo eventInfo)
+        {
+            eventInfo = new Fmi2EventInfo();
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.NewDiscreteStates(wrapper, ref eventInfo);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status EnterContinuousTimeMode()
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.EnterContinuousTimeMode(wrapper);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status CompletedIntegratorStep(bool noSetFmuStatePriorToCurrentPoint, out bool enterEventMode, out bool terminateSimulation)
+        {
+            enterEventMode = false;
+            terminateSimulation = false;
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.CompletedIntegratorStep(wrapper, noSetFmuStatePriorToCurrentPoint, ref enterEventMode, ref terminateSimulation);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        #endregion
+
+        #region Providing independent variables and re-initialization of caching
+
+        public Fmi2Status SetTime(double time)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.SetTime(wrapper, time);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x">Array with length of the number of states.</param>
+        /// <returns></returns>
+        public Fmi2Status SetContinuousStates(double[] x)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetEventIndicators(wrapper, x, new UIntPtr((uint)x.Length));
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        #endregion
+
+        #region Evaluation of the model equations
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="derivatives">Array with length of the number of states.</param>
+        /// <returns></returns>
+        public Fmi2Status GetDerivatives(double[] derivatives)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetDerivatives(wrapper, derivatives, new UIntPtr((uint)derivatives.Length));
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eventIndicators">Array with length of the number of event indicators.</param>
+        /// <returns></returns>
+        public Fmi2Status GetEventIndicators(double[] eventIndicators)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetEventIndicators(wrapper, eventIndicators, new UIntPtr((uint)eventIndicators.Length));
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x">Array with length of the number of states.</param>
+        /// <returns></returns>
+        public Fmi2Status GetContinuousStates(double[] x)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetContinuousStates(wrapper, x, new UIntPtr((uint)x.Length));
+            else
+                return Fmi2Status.fmi2Fatal;
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x_nominal">Array with length of the number of states.</param>
+        /// <returns></returns>
+        public Fmi2Status GetNominalsOfContinuousStates(double[] x_nominal)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetNominalsOfContinuousStates(wrapper, x_nominal, new UIntPtr((uint)x_nominal.Length));
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        #endregion
+
+
+
+        #endregion
+
+        #region Types for Functions for FMI2 for Co-Simulation
+
+        #region Simulating the slave
+
+        public Fmi2Status SetRealInputDerivatives(uint[] vr, int[] order, double[] value)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.SetRealInputDerivatives(wrapper, vr, new UIntPtr((uint)vr.Length), order, value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status GetRealOutputDerivatives(uint[] vr, int[] order, double[] value)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetRealOutputDerivatives(wrapper, vr, new UIntPtr((uint)vr.Length), order, value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+
+        public Fmi2Status DoStep(double currentCommunicationPoint, double communicationStepSize, bool noSetFmuStatePriorToCurrentPoint)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.DoStep(wrapper, currentCommunicationPoint, communicationStepSize, noSetFmuStatePriorToCurrentPoint);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status CancelStep()
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.CancelStep(wrapper);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        #endregion
+
+        #region Inquire slave status
+
+        public Fmi2Status GetStatus(Fmi2StatusKind statusKind, out Fmi2Status value)
+        {
+            value = Fmi2Status.fmi2Error;
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetStatus(wrapper, statusKind, ref value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status GetRealStatus(Fmi2StatusKind statusKind, out double value)
+        {
+            value = 0;
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetRealStatus(wrapper, statusKind, ref value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status GetIntegerStatus(Fmi2StatusKind statusKind, out int value)
+        {
+            value = 0;
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetIntegerStatus(wrapper, statusKind, ref value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status GetBooleanStatus(Fmi2StatusKind statusKind, out bool value)
+        {
+            value = false;
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetBooleanStatus(wrapper, statusKind, ref value);
+            else
+                return Fmi2Status.fmi2Fatal;
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="statusKind"></param>
+        /// <param name="value">Evaluteate with Marshal.PtrToStringAnsi.</param>
+        /// <returns></returns>
+        public Fmi2Status GetStringStatus(Fmi2StatusKind statusKind, out string value)
+        {
+            value = "";
+            if (wrapper != IntPtr.Zero)
+            {
+                var valuePtr = new IntPtr();
+                var result = (Fmi2Status)FmiFunctions.GetStringStatus(wrapper, statusKind, valuePtr);
+                value = Marshal.PtrToStringAnsi(valuePtr);
+                return result;
+            }
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        #endregion
 
         #endregion
 

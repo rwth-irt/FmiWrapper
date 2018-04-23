@@ -21,14 +21,18 @@ namespace FmiWrapperConsole
                 fmu.ExitInitializationMode();
                 // Get variables
                 uint[] realVr = { 16777216, 905969664 };
-                fmu.GetReal(realVr, out double[] realValues);
+                var realValues = new double[realVr.Length];
+                fmu.GetReal(realVr, realValues);
                 Console.WriteLine("Real values: " + String.Join("; ", realValues.Select(p => p.ToString()).ToArray()));
                 uint[] otherVr = { 42, 666, 52062 };
-                fmu.GetInteger(otherVr, out int[] intValues);
+                var intValues = new int[otherVr.Length];
+                fmu.GetInteger(otherVr, intValues);
                 Console.WriteLine("Integer values: " + String.Join("; ", intValues));
-                fmu.GetBoolean(otherVr, out bool[] boolValues);
+                var boolValues = new bool[otherVr.Length];
+                fmu.GetBoolean(otherVr, boolValues);
                 Console.WriteLine("Boolean values: " + String.Join("; ", boolValues));
-                fmu.GetString(otherVr, out string[] stringValues);
+                var stringValues = new string[otherVr.Length];
+                fmu.GetString(otherVr, stringValues);
                 Console.WriteLine("String values: " + String.Join("; ", stringValues));
                 // Set variables
                 uint[] setRealVr = { 16777216, 16777217 };
@@ -40,6 +44,18 @@ namespace FmiWrapperConsole
                 fmu.SetBoolean(setRealVr, setBoolValues);
                 string[] setStringValues = { "1", "2", "3" };
                 fmu.SetString(otherVr, setStringValues);
+                // Compute a simulation step
+                fmu.DoStep(0.0, 0.5, true);
+                // Get new values
+                fmu.GetReal(realVr, realValues);
+                Console.WriteLine("Real values: " + String.Join("; ", realValues.Select(p => p.ToString()).ToArray()));
+                fmu.GetInteger(otherVr, intValues);
+                Console.WriteLine("Integer values: " + String.Join("; ", intValues));
+                fmu.GetBoolean(otherVr, boolValues);
+                Console.WriteLine("Boolean values: " + String.Join("; ", boolValues));
+                fmu.GetString(otherVr, stringValues);
+                Console.WriteLine("String values: " + String.Join("; ", stringValues));
+                // Terminate the fmu
                 fmu.Reset();
                 fmu.Terminate();
             }
