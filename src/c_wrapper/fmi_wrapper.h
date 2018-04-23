@@ -9,8 +9,7 @@
     Especially the variadic parameter of fmi2CallbackFunctions are troublesome:
     The allocation and freeing of raw memory usually isn't supported by higher languages.
     The logger callback uses variadic arguments which only exist in C.
-    Also marshalling the structs correctly is hard.
-    This library wraps those functions by supplying simplified callbacks and hiding the fmi2 structs.
+    This library wraps those functions by supplying simplified callbacks.
 */
 
 
@@ -92,14 +91,12 @@ PUBLIC_EXPORT fmi2Status get_directional_derivative(wrapped_fmu *wrapper, const 
                                                     const fmi2Real dv_known[], fmi2Real dv_unknown[]);
 
 /* **************************************************
-Typess for Functions for FMI2 for Model Exchange
+Types for Functions for FMI2 for Model Exchange
 ****************************************************/
 
 /* Enter and exit the different modes */
 PUBLIC_EXPORT fmi2Status enter_event_mode(wrapped_fmu *wrapper);
-PUBLIC_EXPORT fmi2Status new_discrete_states(wrapped_fmu *wrapper, fmi2Boolean *new_discrete_states_needed, fmi2Boolean *terminate_simulation,
-                                             fmi2Boolean *nominals_of_continuous_states_changed, fmi2Boolean *values_of_continuous_states_changed,
-                                             fmi2Boolean *next_event_time_defined, fmi2Real *next_event_time);
+PUBLIC_EXPORT fmi2Status new_discrete_states(wrapped_fmu *wrapper, fmi2EventInfo *fmi2eventInfo);
 PUBLIC_EXPORT fmi2Status enter_continuous_time_mode(wrapped_fmu *wrapper);
 PUBLIC_EXPORT fmi2Status completed_integrator_step(wrapped_fmu *wrapper, fmi2Boolean no_set_fmu_state_prior_to_current_point, fmi2Boolean *enter_event_mode, fmi2Boolean *terminate_simulation);
 
@@ -127,6 +124,6 @@ PUBLIC_EXPORT fmi2Status cancel_step(wrapped_fmu *wrapper);
 /* Inquire slave status */
 PUBLIC_EXPORT fmi2Status get_status(wrapped_fmu *wrapper, const fmi2StatusKind status_kind, fmi2Status *value);
 PUBLIC_EXPORT fmi2Status get_real_status(wrapped_fmu *wrapper, const fmi2StatusKind status_kind, fmi2Real *value);
-PUBLIC_EXPORT fmi2Status get_integer_status(wrapped_fmu *wrapper, const fmi2StatusKind status_ind, fmi2Integer *value);
+PUBLIC_EXPORT fmi2Status get_integer_status(wrapped_fmu *wrapper, const fmi2StatusKind status_kind, fmi2Integer *value);
 PUBLIC_EXPORT fmi2Status get_boolean_status(wrapped_fmu *wrapper, const fmi2StatusKind status_kind, fmi2Boolean *value);
 PUBLIC_EXPORT fmi2Status get_string_status(wrapped_fmu *wrapper, const fmi2StatusKind status_kind, fmi2String *value);

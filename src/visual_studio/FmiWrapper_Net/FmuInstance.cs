@@ -135,7 +135,7 @@ namespace FmiWrapper_Net
 
         #endregion
 
-        #region Getting and setting the internal FMU state
+        #region Getting and setting variables values 
 
         public Fmi2Status GetReal(uint[] vr, out double[] value)
         {
