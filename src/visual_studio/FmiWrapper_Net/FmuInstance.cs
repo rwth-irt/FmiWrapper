@@ -22,8 +22,6 @@ namespace FmiWrapper_Net
         private void OnStepFinished(int status) =>
             StepFinished?.Invoke(status);
 
-        // Expose the wraped model functions
-
         /// <summary>
         /// The path to the binary of the fmu.
         /// </summary>
@@ -32,6 +30,8 @@ namespace FmiWrapper_Net
         {
             this.fileName = fileName;
         }
+
+        #region Creation and destruction of FMU instances and setting debug status
 
         /// <summary>
         /// Instantiates the fmu if it has not been instantiated yet.
@@ -67,6 +67,10 @@ namespace FmiWrapper_Net
             wrapper = IntPtr.Zero;
         }
 
+        #endregion
+
+        #region Inquire version numbers of header files and setting logging status
+
         public string GetTypesPlatform()
         {
             if (wrapper != IntPtr.Zero)
@@ -82,6 +86,10 @@ namespace FmiWrapper_Net
             else
                 return "";
         }
+
+        #endregion
+
+        #region Enter and exit initialization mode, terminate and reset
 
         public Fmi2Status SetupExperiment(bool toleranceDefined, double tolerance, double startTime, bool stopTimeDefined, double stopTime)
         {
@@ -125,17 +133,33 @@ namespace FmiWrapper_Net
 
         }
 
-        /// <summary>
-        /// Returns the values for the value references as out parameter.
-        /// </summary>
-        /// <param name="vr"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        #endregion
+
+        #region Getting and setting the internal FMU state
+
         public Fmi2Status GetReal(uint[] vr, out double[] value)
         {
             value = new double[vr.Length];
             if (wrapper != IntPtr.Zero)
                 return (Fmi2Status)FmiFunctions.GetReal(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status GetInteger(uint[] vr, out int[] value)
+        {
+            value = new int[vr.Length];
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetInteger(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status GetBoolean(uint[] vr, out bool[] value)
+        {
+            value = new bool[vr.Length];
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.GetBoolean(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -147,12 +171,49 @@ namespace FmiWrapper_Net
             {
                 var valuePtrs = new IntPtr[vr.Length];
                 var status = (Fmi2Status)FmiFunctions.GetString(wrapper, vr, new UIntPtr((ulong)vr.Length), valuePtrs);
-                value = valuePtrs.Select((ptr) => Marshal.PtrToStringAnsi(ptr)).ToArray();
+                value = valuePtrs
+                    .Select((p) => Marshal.PtrToStringAnsi(p))
+                    .ToArray();
                 return status;
             }
             else
                 return Fmi2Status.fmi2Fatal;
         }
+
+
+        public Fmi2Status SetReal(uint[] vr, double[] value)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.SetReal(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status SetInteger(uint[] vr, int[] value)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.SetInteger(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status SetBoolean(uint[] vr, bool[] value)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.SetBoolean(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        public Fmi2Status SetString(uint[] vr, string[] value)
+        {
+            if (wrapper != IntPtr.Zero)
+                return (Fmi2Status)FmiFunctions.SetString(wrapper, vr, new UIntPtr((ulong)vr.Length), value);
+            else
+                return Fmi2Status.fmi2Fatal;
+        }
+
+        #endregion
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
