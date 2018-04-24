@@ -12,14 +12,13 @@
     This library wraps those functions by supplying simplified callbacks.
 */
 
-
 /* Definition of macro to export symbols. */
 #if !defined(PUBLIC_EXPORT)
 #if defined _WIN32 || defined __CYGWIN__
 #define PUBLIC_EXPORT __declspec(dllexport)
 #else
 #if __GNUC__ >= 4
-#define PUBLIC_EXPORT __attribute__ ((visibility ("default")))
+#define PUBLIC_EXPORT __attribute__((visibility("default")))
 #else
 #define PUBLIC_EXPORT
 #endif
@@ -32,9 +31,9 @@
 typedef struct wrapped_fmu wrapped_fmu;
 
 /*! A simplified log callback for the fmu. */
-typedef void(*log_t)(fmi2String instance_name, fmi2Status status, fmi2String category, fmi2String message);
+typedef void (*log_t)(fmi2String instance_name, fmi2Status status, fmi2String category, fmi2String message);
 /*! A simplified stepFinished callback for the fmu. */
-typedef void(*step_finished_t)(fmi2Status status);
+typedef void (*step_finished_t)(fmi2Status status);
 
 /* Creation and destruction of FMU instances and setting debug status */
 

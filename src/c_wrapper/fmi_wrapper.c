@@ -228,11 +228,11 @@ PUBLIC_EXPORT wrapped_fmu *instantiate(const char *file_name, log_t log, step_fi
     // Supply static callback functions and the wrapper. The wrapper contains the callbacks of the enviroment.
     wrapper->callback_functions = malloc(sizeof(*wrapper->callback_functions));
     fmi2CallbackFunctions callbacks = {
-        fmuLogCallback,
-        calloc,
-        free,
-        fmuStepFinished,
-        wrapper };
+        .logger = fmuLogCallback,
+        .allocateMemory = calloc,
+        .freeMemory = free,
+        .stepFinished = fmuStepFinished,
+        .componentEnvironment = wrapper};
     memcpy(wrapper->callback_functions, &callbacks, sizeof(*wrapper->callback_functions));
     // Instantiate the fmu
     wrapper->component = wrapper->instantiate(instance_name, fmu_type, guid, resource_location, wrapper->callback_functions, visible, logging_on);
@@ -263,7 +263,7 @@ PUBLIC_EXPORT const char *get_version(wrapped_fmu *wrapper)
     return wrapper->get_version();
 }
 
-PUBLIC_EXPORT int set_debug_logging(wrapped_fmu *wrapper, fmi2Boolean logging_on, size_t n_categories, fmi2String categories[])
+PUBLIC_EXPORT fmi2Status set_debug_logging(wrapped_fmu *wrapper, fmi2Boolean logging_on, size_t n_categories, fmi2String categories[])
 {
     return wrapper->set_debug_logging(wrapper->component, logging_on, n_categories, categories);
 }
@@ -384,7 +384,7 @@ PUBLIC_EXPORT fmi2Status enter_event_mode(wrapped_fmu *wrapper)
 PUBLIC_EXPORT fmi2Status new_discrete_states(wrapped_fmu *wrapper, fmi2EventInfo *fmi2eventInfo)
 {
     // The struct is a pain to marshal so provide it here and update the reference values.
-    fmi2EventInfo info = { 0 };
+    fmi2EventInfo info = {0};
     return wrapper->new_discrete_states(wrapper->component, fmi2eventInfo);
 }
 
