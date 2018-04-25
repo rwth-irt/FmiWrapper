@@ -6,6 +6,8 @@ The core of this function is located in the "C Code" directory. SystemFunctions.
 
 Additionally the VisualStudio solution provides a wrapper for .NET written in C#. By using the simplified interface PInvoke can be used to call into the FmiWrapper.dll which will load the FMU for you. The FmuInstance takes care of the unmanaged resources and ensures that they are freed on dispose or destruction.
 
+The FmiWrapperConsole is a .net-core console application for testing the capabilities of the wrapper and the fmu. Note that currently the path to the binary is hard-coded to use the win64 version.
+
 ## Build notes
 - Written in C99
 - Comments for doxygen using qt format
