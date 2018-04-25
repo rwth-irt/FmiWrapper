@@ -14,10 +14,12 @@ namespace FmiWrapper_Net
         private IntPtr wrapper;
 
         // Log event to wrap callback
+        private FmiFunctions.LogCallback logCallback;
         public event FmiFunctions.LogCallback Log;
         private void OnLog(string instanceName, int status, string category, string message) =>
             Log?.Invoke(instanceName, status, category, message);
         // StepFinished event to wrap callback
+        private FmiFunctions.StepFinishedCallback stepFinishedCallback;
         public event FmiFunctions.StepFinishedCallback StepFinished;
         private void OnStepFinished(int status) =>
             StepFinished?.Invoke(status);
@@ -50,7 +52,9 @@ namespace FmiWrapper_Net
             if (wrapper == IntPtr.Zero)
             {
                 // Load the model instance
-                wrapper = FmiFunctions.Instantiate(fileName, new FmiFunctions.LogCallback(OnLog), new FmiFunctions.StepFinishedCallback(OnStepFinished),
+                logCallback = new FmiFunctions.LogCallback(OnLog);
+                stepFinishedCallback = new FmiFunctions.StepFinishedCallback(OnStepFinished);
+                wrapper = FmiFunctions.Instantiate(fileName, logCallback, stepFinishedCallback,
                     instanceName, fmuType, guid, resourceLocation, visible, loggingOn);
                 if (wrapper == IntPtr.Zero)
                 {

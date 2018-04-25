@@ -1,62 +1,128 @@
 ﻿using System;
 using FmiWrapper_Net;
 using System.Linq;
+using System.IO;
+using System.IO.Compression;
+using System.Xml;
 
 namespace FmiWrapperConsole
 {
     class Program
     {
+        // private const string FMU = "SimplePendulum.fmu";
+        private const string FMU = "test_sf.fmu";
+        private const double END_TIME = 0.1;
+        private const double STEP_SIZE = 0.01;
+
+        private static (string modelName, string guid) LoadFmu(string fmuPath)
+        {
+            using (var fmuStream = File.OpenRead(fmuPath))
+            {
+                var fmuArchive = new ZipArchive(fmuStream, ZipArchiveMode.Read);
+                var modelDescriptionEntry = fmuArchive.GetEntry("modelDescription.xml");
+                using (var modelDescription = modelDescriptionEntry.Open())
+                {
+                    // Read the xml
+                    var doc = new XmlDocument();
+                    doc.Load(modelDescription);
+                    var modelDescriptionNode = doc.SelectSingleNode("/fmiModelDescription");
+                    var name = modelDescriptionNode.Attributes["modelName"].InnerText;
+                    var guid = modelDescriptionNode.Attributes["guid"].InnerText;
+                    // Extract the binary
+                    var binaryEntry = fmuArchive.GetEntry("binaries/win64/" + name + ".dll");
+                    using (var binary = binaryEntry.Open())
+                    {
+                        using (var target = File.Create(name + ".dll"))
+                        {
+                            binary.CopyTo(target);
+                        }
+                    }
+                    return (name, guid);
+                }
+            }
+        }
+
+        private static void SetValues(FmuInstance fmu)
+        {
+            uint[] setRealVr = { 1342177280 };
+            double[] setRealValues = { 42 };
+            fmu.SetReal(setRealVr, setRealValues);
+            uint[] setIntegerVr = { 1442840578 };
+            int[] setIntegerValues = { 42 };
+            fmu.SetInteger(setIntegerVr, setIntegerValues);
+            uint[] setBooleanVr = { 1476395009 };
+            bool[] setBooleanValues = { true };
+            fmu.SetBoolean(setBooleanVr, setBooleanValues);
+            uint[] setStringVr = { 1, 2, 3 };
+            string[] setStringValues = { "1", "2", "3" };
+            fmu.SetString(setStringVr, setStringValues);
+        }
+
+        private static void GetValues(FmuInstance fmu)
+        {
+            uint[] getRealVr = { 1073741824 };
+            var getRealValues = new double[getRealVr.Length];
+            fmu.GetReal(getRealVr, getRealValues);
+            Console.WriteLine("Real values: " + String.Join("; ", getRealValues));
+            uint[] getIntegerVr = { 1174405121 };
+            var getIntegerValues = new int[getIntegerVr.Length];
+            fmu.GetInteger(getIntegerVr, getIntegerValues);
+            Console.WriteLine("Integer values: " + String.Join("; ", getIntegerValues));
+            uint[] getBooleanVr = { 1207959554 };
+            var getBooleanValues = new bool[getBooleanVr.Length];
+            fmu.GetBoolean(getBooleanVr, getBooleanValues);
+            Console.WriteLine("Boolean values: " + String.Join("; ", getBooleanValues));
+            uint[] getStringVr = { 1, 2, 3 };
+            string[] getStringValues = new string[getStringVr.Length];
+            fmu.GetString(getStringVr, getStringValues);
+            Console.WriteLine("String values: " + String.Join("; ", getStringValues));
+        }
+
+        private static void Simulate(FmuInstance fmu)
+        {
+            for (double time = 0; time < END_TIME; time += STEP_SIZE)
+            {
+                Console.WriteLine("\nGetValues, current time: " + time);
+                GetValues(fmu);
+                Console.WriteLine("DoStep, step size: " + STEP_SIZE);
+                fmu.DoStep(time, STEP_SIZE, true);
+            }
+        }
+
         static void Main(string[] args)
         {
-            using (var fmu = new FmuInstance("SimplePendulum.dll"))
+            // Load model description and extract binary
+            (string modelName, string guid) = LoadFmu(FMU);
+            // Create the instancr
+            using (var fmu = new FmuInstance(modelName + ".dll"))
             {
                 // Setup
                 fmu.Log += Fmu_Log;
                 fmu.StepFinished += Fmu_StepFinished;
-                fmu.Instantiate("TestInstance", Fmi2Type.fmi2CoSimulation, "{d469a761-6eeb-4434-be44-77019e248cbe}", "", false, true);
+                fmu.Instantiate(modelName + "_Instance", Fmi2Type.fmi2CoSimulation, guid, "", false, true);
                 Console.WriteLine("Types platform: " + fmu.GetTypesPlatform());
                 Console.WriteLine("Version: " + fmu.GetVersion());
-                fmu.SetupExperiment(false, 0, 0, false, int.MaxValue);
+                fmu.SetupExperiment(false, 0, 0, true,  END_TIME);
                 fmu.EnterInitializationMode();
                 fmu.ExitInitializationMode();
-                // Get variables
-                uint[] realVr = { 16777216, 905969664 };
-                var realValues = new double[realVr.Length];
-                fmu.GetReal(realVr, realValues);
-                Console.WriteLine("Real values: " + String.Join("; ", realValues.Select(p => p.ToString()).ToArray()));
-                uint[] otherVr = { 42, 666, 52062 };
-                var intValues = new int[otherVr.Length];
-                fmu.GetInteger(otherVr, intValues);
-                Console.WriteLine("Integer values: " + String.Join("; ", intValues));
-                var boolValues = new bool[otherVr.Length];
-                fmu.GetBoolean(otherVr, boolValues);
-                Console.WriteLine("Boolean values: " + String.Join("; ", boolValues));
-                var stringValues = new string[otherVr.Length];
-                fmu.GetString(otherVr, stringValues);
-                Console.WriteLine("String values: " + String.Join("; ", stringValues));
-                // Set variables
-                uint[] setRealVr = { 16777216, 16777217 };
-                double[] setRealValues = { 19.81, 0.5 };
-                fmu.SetReal(setRealVr, setRealValues);
-                int[] setIntegerValues = { 1, 2, 3 };
-                fmu.SetInteger(otherVr, setIntegerValues);
-                bool[] setBoolValues = { true, false, true };
-                fmu.SetBoolean(setRealVr, setBoolValues);
-                string[] setStringValues = { "1", "2", "3" };
-                fmu.SetString(otherVr, setStringValues);
-                // Compute a simulation step
-                fmu.DoStep(0.0, 0.5, true);
-                // Get new values
-                fmu.GetReal(realVr, realValues);
-                Console.WriteLine("Real values: " + String.Join("; ", realValues.Select(p => p.ToString()).ToArray()));
-                fmu.GetInteger(otherVr, intValues);
-                Console.WriteLine("Integer values: " + String.Join("; ", intValues));
-                fmu.GetBoolean(otherVr, boolValues);
-                Console.WriteLine("Boolean values: " + String.Join("; ", boolValues));
-                fmu.GetString(otherVr, stringValues);
-                Console.WriteLine("String values: " + String.Join("; ", stringValues));
-                // Terminate the fmu
+
+                // Simulate
+                SetValues(fmu);
+                Simulate(fmu);
+                // Reset
+                //fmu.FreeInstance();
+                //fmu.Instantiate(modelName + "_Instance", Fmi2Type.fmi2CoSimulation, guid, "", false, true);
+                Console.WriteLine("**********\n**********\n********** RESET **********\n**********\n**********");
                 fmu.Reset();
+                fmu.SetupExperiment(false, 0, 0, true, END_TIME);
+                fmu.EnterInitializationMode();
+                fmu.ExitInitializationMode();
+
+
+                // Simulate again
+                SetValues(fmu);
+                Simulate(fmu);
+                // Terminate the fmu
                 fmu.Terminate();
             }
             Console.WriteLine("Press enter to exit");

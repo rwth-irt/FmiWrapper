@@ -5,18 +5,16 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="SimplePendulum.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="SimplePendulum.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FmiWrapper_Net\FmiWrapper_Net.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="SimplePendulum.fmu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="test_sf.fmu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

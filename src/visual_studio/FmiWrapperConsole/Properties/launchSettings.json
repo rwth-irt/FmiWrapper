@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FmiWrapperConsole": {
+      "commandName": "Project",
+      "nativeDebugging" : true
+    }
+  }
+}
