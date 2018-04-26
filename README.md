@@ -11,4 +11,4 @@ The [FmiWrapperConsole](/src/visual_studio/FmiWrapperConsole) is a .net-core con
 ## Build notes
 - Written in C99
 - Comments for doxygen using qt format
-- Built using CMake + Visual Studio 2017 & mingw-w64
+- Built of the C-Wrapper has been tested with CMake + Visual Studio 2017 / mingw-w64 / gcc 5.4.0
