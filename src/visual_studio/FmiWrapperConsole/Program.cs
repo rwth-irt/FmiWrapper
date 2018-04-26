@@ -129,14 +129,14 @@ namespace FmiWrapperConsole
             Console.ReadLine();
         }
 
-        private static void Fmu_Log(string instanceName, int status, string category, string message)
+        private static void Fmu_Log(string instanceName, Fmi2Status status, string category, string message)
         {
-            Console.WriteLine("Instance name: " + instanceName + ", status: " + status + ", category: " + category + ", message: " + message);
+            Console.WriteLine("Instance name: " + instanceName + ", status: " + status.ToString("g") + ", category: " + category + ", message: " + message);
         }
 
-        private static void Fmu_StepFinished(int status)
+        private static void Fmu_StepFinished(Fmi2Status status)
         {
-            Console.WriteLine("Step finished " + status);
+            Console.WriteLine("Step finished " + status.ToString("g"));
         }
     }
 }

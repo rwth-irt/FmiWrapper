@@ -16,12 +16,12 @@ namespace FmiWrapper_Net
         // Log event to wrap callback
         private FmiFunctions.LogCallback logCallback;
         public event FmiFunctions.LogCallback Log;
-        private void OnLog(string instanceName, int status, string category, string message) =>
+        private void OnLog(string instanceName, Fmi2Status status, string category, string message) =>
             Log?.Invoke(instanceName, status, category, message);
         // StepFinished event to wrap callback
         private FmiFunctions.StepFinishedCallback stepFinishedCallback;
         public event FmiFunctions.StepFinishedCallback StepFinished;
-        private void OnStepFinished(int status) =>
+        private void OnStepFinished(Fmi2Status status) =>
             StepFinished?.Invoke(status);
 
         /// <summary>

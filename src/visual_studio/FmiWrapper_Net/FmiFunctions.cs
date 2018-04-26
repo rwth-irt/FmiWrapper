@@ -17,13 +17,13 @@ namespace FmiWrapper_Net
         /// <param name="status"></param>
         /// <param name="category"></param>
         /// <param name="message"></param>
-        public delegate void LogCallback(string instanceName, int status, string category, string message);
+        public delegate void LogCallback(string instanceName, Fmi2Status status, string category, string message);
 
         /// <summary>
         /// Gets called after an asynchronous simulation step finished.
         /// </summary>
         /// <param name="status"></param>
-        public delegate void StepFinishedCallback(int status);
+        public delegate void StepFinishedCallback(Fmi2Status status);
 
         #region Creation and destruction of FMU instances and setting debug status
 
