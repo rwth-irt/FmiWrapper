@@ -7,6 +7,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,7 @@
       <Project>{43EE7333-6623-4B1B-B1EB-68FA7D987133}</Project>
       <Name>FmiWrapper</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <Private>true</Private>
     </ProjectReference>
   </ItemGroup>
 
