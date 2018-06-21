@@ -10,7 +10,7 @@ namespace FmiWrapper_Net
     /// </summary>
     public class FmuInstance : IDisposable
     {
-        private string fileName;
+        private readonly string fileName;
         private IntPtr wrapper;
 
         // Log event to wrap callback
