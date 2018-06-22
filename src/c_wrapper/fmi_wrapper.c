@@ -107,7 +107,7 @@ This function calls the stepFinishedCallback of the wrapper.
 */
 static void fmuLogCallback(fmi2ComponentEnvironment component_environment, fmi2String instance_name, fmi2Status status, fmi2String category, fmi2String message, ...)
 {
-    wrapped_fmu *wrapper = (wrapped_fmu *)component_environment;
+    wrapped_fmu *wrapper = (wrapped_fmu*)component_environment;
     // fmi2standard: The message is to be used like sprintf.
     // For simplification apply the variadic arguments to the format string and call enviromentLog with this single string
     va_list args;
@@ -128,7 +128,7 @@ This function calls the logCallback of the wrapper.
 */
 static void fmuStepFinished(fmi2ComponentEnvironment component_environment, fmi2Status status)
 {
-    wrapped_fmu *wrapper = (wrapped_fmu *)component_environment;
+    wrapped_fmu *wrapper = (wrapped_fmu*)component_environment;
     wrapper->step_finished(status);
 }
 
@@ -136,7 +136,7 @@ static void fmuStepFinished(fmi2ComponentEnvironment component_environment, fmi2
 wrapped_fmu *create_wrapper(const char *file_name, log_t log_t, step_finished_t step_finished_t)
 {
     // Create the wrapper struct
-    wrapped_fmu *wrapper = malloc(sizeof *wrapper);
+    wrapped_fmu *wrapper = malloc(sizeof(wrapped_fmu));
     wrapper->shared_library_handle = loadSharedLibrary(file_name);
     if (wrapper->shared_library_handle == NULL)
     {
@@ -226,13 +226,13 @@ PUBLIC_EXPORT wrapped_fmu *instantiate(const char *file_name, log_t log, step_fi
         return NULL;
     }
     // Supply static callback functions and the wrapper. The wrapper contains the callbacks of the enviroment.
-    wrapper->callback_functions = malloc(sizeof(*wrapper->callback_functions));
+    wrapper->callback_functions = malloc(sizeof(fmi2CallbackFunctions));
     fmi2CallbackFunctions callbacks = {
         .logger = fmuLogCallback,
         .allocateMemory = calloc,
         .freeMemory = free,
         .stepFinished = fmuStepFinished,
-        .componentEnvironment = wrapper};
+        .componentEnvironment = wrapper };
     memcpy(wrapper->callback_functions, &callbacks, sizeof(*wrapper->callback_functions));
     // Instantiate the fmu
     wrapper->component = wrapper->instantiate(instance_name, fmu_type, guid, resource_location, wrapper->callback_functions, visible, logging_on);
@@ -384,7 +384,7 @@ PUBLIC_EXPORT fmi2Status enter_event_mode(wrapped_fmu *wrapper)
 PUBLIC_EXPORT fmi2Status new_discrete_states(wrapped_fmu *wrapper, fmi2EventInfo *fmi2eventInfo)
 {
     // The struct is a pain to marshal so provide it here and update the reference values.
-    fmi2EventInfo info = {0};
+    fmi2EventInfo info = { 0 };
     return wrapper->new_discrete_states(wrapper->component, fmi2eventInfo);
 }
 
