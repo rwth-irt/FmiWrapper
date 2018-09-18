@@ -19,11 +19,20 @@
     </ProjectReference>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$(Platform)==x64">
     <Content Include="..\FmiWrapper\bin\$(Platform)\$(Configuration)\FmiWrapper.dll" Link="FmiWrapper.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\FmiWrapper\bin\$(Platform)\$(Configuration)\FmiWrapper.pdb" Link="FmiWrapper.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="$(Platform)==x86">
+    <Content Include="..\FmiWrapper\bin\Win32\$(Configuration)\FmiWrapper.dll" Link="FmiWrapper.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\FmiWrapper\bin\Win32\$(Configuration)\FmiWrapper.pdb" Link="FmiWrapper.pdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
