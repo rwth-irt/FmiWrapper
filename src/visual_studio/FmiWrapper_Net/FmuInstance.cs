@@ -10,7 +10,7 @@ namespace FmiWrapper_Net
     /// </summary>
     public class FmuInstance : IDisposable
     {
-        private string fileName;
+        private readonly string fileName;
         private IntPtr wrapper;
 
         // Log event to wrap callback
@@ -98,16 +98,15 @@ namespace FmiWrapper_Net
         public Fmi2Status SetupExperiment(bool toleranceDefined, double tolerance, double startTime, bool stopTimeDefined, double stopTime)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetupExperiment(wrapper, toleranceDefined, tolerance, startTime, stopTimeDefined, stopTime);
+                return FmiFunctions.SetupExperiment(wrapper, toleranceDefined, tolerance, startTime, stopTimeDefined, stopTime);
             else
                 return Fmi2Status.fmi2Fatal;
         }
 
-
         public Fmi2Status EnterInitializationMode()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.EnterInitializationMode(wrapper);
+                return FmiFunctions.EnterInitializationMode(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -115,7 +114,7 @@ namespace FmiWrapper_Net
         public Fmi2Status ExitInitializationMode()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.ExitInitializationMode(wrapper);
+                return FmiFunctions.ExitInitializationMode(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -123,7 +122,7 @@ namespace FmiWrapper_Net
         public Fmi2Status Terminate()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.Terminate(wrapper);
+                return FmiFunctions.Terminate(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -131,7 +130,7 @@ namespace FmiWrapper_Net
         public Fmi2Status Reset()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.Reset(wrapper);
+                return FmiFunctions.Reset(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
 
@@ -144,7 +143,7 @@ namespace FmiWrapper_Net
         public Fmi2Status GetReal(uint[] vr, double[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetReal(wrapper, vr, new UIntPtr((uint)vr.Length), value);
+                return FmiFunctions.GetReal(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -152,7 +151,7 @@ namespace FmiWrapper_Net
         public Fmi2Status GetInteger(uint[] vr, int[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetInteger(wrapper, vr, new UIntPtr((uint)vr.Length), value);
+                return FmiFunctions.GetInteger(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -160,7 +159,7 @@ namespace FmiWrapper_Net
         public Fmi2Status GetBoolean(uint[] vr, bool[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetBoolean(wrapper, vr, new UIntPtr((uint)vr.Length), value);
+                return FmiFunctions.GetBoolean(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -170,7 +169,7 @@ namespace FmiWrapper_Net
             if (wrapper != IntPtr.Zero)
             {
                 var valuePtrs = new IntPtr[vr.Length];
-                var status = (Fmi2Status)FmiFunctions.GetString(wrapper, vr, new UIntPtr((uint)vr.Length), valuePtrs);
+                var status = FmiFunctions.GetString(wrapper, vr, new UIntPtr((uint)vr.Length), valuePtrs);
                 value = valuePtrs
                     .Select((p) => Marshal.PtrToStringAnsi(p))
                     .ToArray();
@@ -184,7 +183,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetReal(uint[] vr, double[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetReal(wrapper, vr, new UIntPtr((uint)vr.Length), value);
+                return FmiFunctions.SetReal(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -192,7 +191,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetInteger(uint[] vr, int[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetInteger(wrapper, vr, new UIntPtr((uint)vr.Length), value);
+                return FmiFunctions.SetInteger(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -200,7 +199,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetBoolean(uint[] vr, bool[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetBoolean(wrapper, vr, new UIntPtr((uint)vr.Length), value);
+                return FmiFunctions.SetBoolean(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -208,7 +207,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetString(uint[] vr, string[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetString(wrapper, vr, new UIntPtr((uint)vr.Length), value);
+                return FmiFunctions.SetString(wrapper, vr, new UIntPtr((uint)vr.Length), value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -222,7 +221,7 @@ namespace FmiWrapper_Net
         public Fmi2Status EnterEventMode()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.EnterEventMode(wrapper);
+                return FmiFunctions.EnterEventMode(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -231,7 +230,7 @@ namespace FmiWrapper_Net
         {
             eventInfo = new Fmi2EventInfo();
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.NewDiscreteStates(wrapper, ref eventInfo);
+                return FmiFunctions.NewDiscreteStates(wrapper, ref eventInfo);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -239,7 +238,7 @@ namespace FmiWrapper_Net
         public Fmi2Status EnterContinuousTimeMode()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.EnterContinuousTimeMode(wrapper);
+                return FmiFunctions.EnterContinuousTimeMode(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -249,7 +248,7 @@ namespace FmiWrapper_Net
             enterEventMode = false;
             terminateSimulation = false;
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.CompletedIntegratorStep(wrapper, noSetFmuStatePriorToCurrentPoint, ref enterEventMode, ref terminateSimulation);
+                return FmiFunctions.CompletedIntegratorStep(wrapper, noSetFmuStatePriorToCurrentPoint, ref enterEventMode, ref terminateSimulation);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -261,7 +260,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetTime(double time)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetTime(wrapper, time);
+                return FmiFunctions.SetTime(wrapper, time);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -274,7 +273,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetContinuousStates(double[] x)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetEventIndicators(wrapper, x, new UIntPtr((uint)x.Length));
+                return FmiFunctions.GetEventIndicators(wrapper, x, new UIntPtr((uint)x.Length));
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -291,7 +290,7 @@ namespace FmiWrapper_Net
         public Fmi2Status GetDerivatives(double[] derivatives)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetDerivatives(wrapper, derivatives, new UIntPtr((uint)derivatives.Length));
+                return FmiFunctions.GetDerivatives(wrapper, derivatives, new UIntPtr((uint)derivatives.Length));
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -304,7 +303,7 @@ namespace FmiWrapper_Net
         public Fmi2Status GetEventIndicators(double[] eventIndicators)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetEventIndicators(wrapper, eventIndicators, new UIntPtr((uint)eventIndicators.Length));
+                return FmiFunctions.GetEventIndicators(wrapper, eventIndicators, new UIntPtr((uint)eventIndicators.Length));
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -318,7 +317,7 @@ namespace FmiWrapper_Net
         public Fmi2Status GetContinuousStates(double[] x)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetContinuousStates(wrapper, x, new UIntPtr((uint)x.Length));
+                return FmiFunctions.GetContinuousStates(wrapper, x, new UIntPtr((uint)x.Length));
             else
                 return Fmi2Status.fmi2Fatal;
 
@@ -332,7 +331,7 @@ namespace FmiWrapper_Net
         public Fmi2Status GetNominalsOfContinuousStates(double[] x_nominal)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetNominalsOfContinuousStates(wrapper, x_nominal, new UIntPtr((uint)x_nominal.Length));
+                return FmiFunctions.GetNominalsOfContinuousStates(wrapper, x_nominal, new UIntPtr((uint)x_nominal.Length));
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -350,7 +349,7 @@ namespace FmiWrapper_Net
         public Fmi2Status SetRealInputDerivatives(uint[] vr, int[] order, double[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.SetRealInputDerivatives(wrapper, vr, new UIntPtr((uint)vr.Length), order, value);
+                return FmiFunctions.SetRealInputDerivatives(wrapper, vr, new UIntPtr((uint)vr.Length), order, value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -358,7 +357,7 @@ namespace FmiWrapper_Net
         public Fmi2Status GetRealOutputDerivatives(uint[] vr, int[] order, double[] value)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetRealOutputDerivatives(wrapper, vr, new UIntPtr((uint)vr.Length), order, value);
+                return FmiFunctions.GetRealOutputDerivatives(wrapper, vr, new UIntPtr((uint)vr.Length), order, value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -367,7 +366,7 @@ namespace FmiWrapper_Net
         public Fmi2Status DoStep(double currentCommunicationPoint, double communicationStepSize, bool noSetFmuStatePriorToCurrentPoint)
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.DoStep(wrapper, currentCommunicationPoint, communicationStepSize, noSetFmuStatePriorToCurrentPoint);
+                return FmiFunctions.DoStep(wrapper, currentCommunicationPoint, communicationStepSize, noSetFmuStatePriorToCurrentPoint);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -375,7 +374,7 @@ namespace FmiWrapper_Net
         public Fmi2Status CancelStep()
         {
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.CancelStep(wrapper);
+                return FmiFunctions.CancelStep(wrapper);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -388,7 +387,7 @@ namespace FmiWrapper_Net
         {
             value = Fmi2Status.fmi2Error;
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetStatus(wrapper, statusKind, ref value);
+                return FmiFunctions.GetStatus(wrapper, statusKind, ref value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -397,7 +396,7 @@ namespace FmiWrapper_Net
         {
             value = 0;
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetRealStatus(wrapper, statusKind, ref value);
+                return FmiFunctions.GetRealStatus(wrapper, statusKind, ref value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -406,7 +405,7 @@ namespace FmiWrapper_Net
         {
             value = 0;
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetIntegerStatus(wrapper, statusKind, ref value);
+                return FmiFunctions.GetIntegerStatus(wrapper, statusKind, ref value);
             else
                 return Fmi2Status.fmi2Fatal;
         }
@@ -415,7 +414,7 @@ namespace FmiWrapper_Net
         {
             value = false;
             if (wrapper != IntPtr.Zero)
-                return (Fmi2Status)FmiFunctions.GetBooleanStatus(wrapper, statusKind, ref value);
+                return FmiFunctions.GetBooleanStatus(wrapper, statusKind, ref value);
             else
                 return Fmi2Status.fmi2Fatal;
 
@@ -433,7 +432,7 @@ namespace FmiWrapper_Net
             if (wrapper != IntPtr.Zero)
             {
                 var valuePtr = new IntPtr();
-                var result = (Fmi2Status)FmiFunctions.GetStringStatus(wrapper, statusKind, valuePtr);
+                var result = FmiFunctions.GetStringStatus(wrapper, statusKind, valuePtr);
                 value = Marshal.PtrToStringAnsi(valuePtr);
                 return result;
             }
