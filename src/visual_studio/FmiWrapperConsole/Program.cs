@@ -9,7 +9,7 @@ namespace FmiWrapperConsole
 {
     class Program
     {
-        // private const string FMU = "SimplePendulum.fmu";
+        //private const string FMU = "SimplePendulum.fmu";
         private const string FMU = "test_sf.fmu";
         private const double END_TIME = 0.1;
         private const double STEP_SIZE = 0.01;
@@ -109,11 +109,10 @@ namespace FmiWrapperConsole
                 // Simulate
                 SetValues(fmu);
                 Simulate(fmu);
-                // Reset
-                //fmu.FreeInstance();
-                //fmu.Instantiate(modelName + "_Instance", Fmi2Type.fmi2CoSimulation, guid, "", false, true);
-                Console.WriteLine("**********\n**********\n********** RESET **********\n**********\n**********");
-                fmu.Reset();
+                // Reset crashes the Matlab FMU
+                fmu.FreeInstance();
+                fmu.Instantiate(modelName + "_Instance", Fmi2Type.fmi2CoSimulation, guid, "", false, true);
+                //fmu.Reset();
                 fmu.SetupExperiment(false, 0, 0, true, END_TIME);
                 fmu.EnterInitializationMode();
                 fmu.ExitInitializationMode();
