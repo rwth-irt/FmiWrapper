@@ -6,7 +6,7 @@ The core of this function is located in the [c_wrapper directory](/src/c_wrapper
 
 Additionally the [VisualStudio solution](/src/visual_studio) provides a wrapper for .NET written in C#. By using the simplified interface PInvoke can be used to call into the FmiWrapper.dll which will load the FMU for you. The FmuInstance takes care of the unmanaged resources and ensures that they are freed on dispose or destruction. The FmiWrapper_Net project references the native project and automatically copies the FmiWrapper.dll generated from the build.
 
-The [FmiWrapperConsole](/src/visual_studio/FmiWrapperConsole) is a .net-core console application for testing the capabilities of the wrapper and the fmu. Note that currently the path to the binary is hard-coded to use the win64 version.
+The [FmiWrapperConsole](/src/visual_studio/FmiWrapperConsole) is a .net-core console application for testing the capabilities of the wrapper and the fmu. Note that currently the path to the binary is hard-coded to use the win64 DLL. Make sure to compile the application for x64!
 
 ## Build notes
 - Written in C99

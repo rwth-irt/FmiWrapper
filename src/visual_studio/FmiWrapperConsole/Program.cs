@@ -1,12 +1,15 @@
 ﻿using System;
 using FmiWrapper_Net;
-using System.Linq;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
 
 namespace FmiWrapperConsole
 {
+    /// <summary>
+    /// Simulates a test fmu (test_sf.fmu).
+    /// Make sure to compile for x64 so the right DLL is beeing loaded.
+    /// </summary>
     class Program
     {
         //private const string FMU = "SimplePendulum.fmu";
