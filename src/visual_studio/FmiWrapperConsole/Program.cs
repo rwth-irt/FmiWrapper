@@ -17,7 +17,7 @@ namespace FmiWrapperConsole
         private const double END_TIME = 0.1;
         private const double STEP_SIZE = 0.01;
 
-        private static (string modelName, string guid) LoadFmu(string fmuPath)
+        private static (string modelIdentifier, string guid) LoadFmu(string fmuPath)
         {
             using (var fmuStream = File.OpenRead(fmuPath))
             {
@@ -29,18 +29,19 @@ namespace FmiWrapperConsole
                     var doc = new XmlDocument();
                     doc.Load(modelDescription);
                     var modelDescriptionNode = doc.SelectSingleNode("/fmiModelDescription");
-                    var name = modelDescriptionNode.Attributes["modelName"].InnerText;
+                    var coSimulationNode = doc.SelectSingleNode("/fmiModelDescription/CoSimulation");
+                    var modelIdentifier = coSimulationNode.Attributes["modelIdentifier"].InnerText;
                     var guid = modelDescriptionNode.Attributes["guid"].InnerText;
                     // Extract the binary
-                    var binaryEntry = fmuArchive.GetEntry("binaries/win64/" + name + ".dll");
+                    var binaryEntry = fmuArchive.GetEntry("binaries/win64/" + modelIdentifier + ".dll");
                     using (var binary = binaryEntry.Open())
                     {
-                        using (var target = File.Create(name + ".dll"))
+                        using (var target = File.Create(modelIdentifier + ".dll"))
                         {
                             binary.CopyTo(target);
                         }
                     }
-                    return (name, guid);
+                    return (modelIdentifier, guid);
                 }
             }
         }
@@ -95,14 +96,14 @@ namespace FmiWrapperConsole
         static void Main(string[] args)
         {
             // Load model description and extract binary
-            (string modelName, string guid) = LoadFmu(FMU);
+            (string modelIdentifier, string guid) = LoadFmu(FMU);
             // Create the instancr
-            using (var fmu = new FmuInstance(modelName + ".dll"))
+            using (var fmu = new FmuInstance(modelIdentifier + ".dll"))
             {
                 // Setup
                 fmu.Log += Fmu_Log;
                 fmu.StepFinished += Fmu_StepFinished;
-                fmu.Instantiate(modelName + "_Instance", Fmi2Type.fmi2CoSimulation, guid, "", false, true);
+                fmu.Instantiate(modelIdentifier + "_Instance", Fmi2Type.fmi2CoSimulation, guid, "", false, true);
                 Console.WriteLine("Types platform: " + fmu.GetTypesPlatform());
                 Console.WriteLine("Version: " + fmu.GetVersion());
                 fmu.SetupExperiment(false, 0, 0, true,  END_TIME);
@@ -114,7 +115,7 @@ namespace FmiWrapperConsole
                 Simulate(fmu);
                 // Reset crashes the Matlab FMU
                 fmu.FreeInstance();
-                fmu.Instantiate(modelName + "_Instance", Fmi2Type.fmi2CoSimulation, guid, "", false, true);
+                fmu.Instantiate(modelIdentifier + "_Instance", Fmi2Type.fmi2CoSimulation, guid, "", false, true);
                 //fmu.Reset();
                 fmu.SetupExperiment(false, 0, 0, true, END_TIME);
                 fmu.EnterInitializationMode();
