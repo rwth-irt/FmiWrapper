@@ -102,8 +102,8 @@ struct wrapped_fmu
 };
 
 /*!
-Implementation of the stepFinished callback that is passed to the fmu.
-This function calls the stepFinishedCallback of the wrapper.
+Implementation of the logger callback that is passed to the fmu.
+This function calls the logCallback of the wrapper.
 */
 static void fmuLogCallback(fmi2ComponentEnvironment component_environment, fmi2String instance_name, fmi2Status status, fmi2String category, fmi2String message, ...)
 {
@@ -123,8 +123,8 @@ static void fmuLogCallback(fmi2ComponentEnvironment component_environment, fmi2S
 }
 
 /*!
-Implementation of the logger callback that is passed to the fmu.
-This function calls the logCallback of the wrapper.
+Implementation of the stepFinished callback that is passed to the fmu.
+This function calls the stepFinishedCallback of the wrapper.
 */
 static void fmuStepFinished(fmi2ComponentEnvironment component_environment, fmi2Status status)
 {
@@ -132,8 +132,11 @@ static void fmuStepFinished(fmi2ComponentEnvironment component_environment, fmi2
     wrapper->step_finished(status);
 }
 
-/*! Load the functions from the binary into a wrapper struct. */
-wrapped_fmu *create_wrapper(const char *file_name, log_t log_t, step_finished_t step_finished_t)
+/*! 
+Load the functions from the binary into a wrapper struct.
+This is typically the first function you would want to call.
+*/
+wrapped_fmu *create_wrapper(const char *file_name, log_t log_callback, step_finished_t step_finished_callback)
 {
     // Create the wrapper struct
     wrapped_fmu *wrapper = malloc(sizeof(wrapped_fmu));
@@ -143,8 +146,8 @@ wrapped_fmu *create_wrapper(const char *file_name, log_t log_t, step_finished_t 
         // Failed to load the library.
         return NULL;
     }
-    wrapper->log = log_t;
-    wrapper->step_finished = step_finished_t;
+    wrapper->log = log_callback;
+    wrapper->step_finished = step_finished_callback;
     // Load all the funcions
     /* Inquire version numbers of header files */
     wrapper->get_types_platform = getFunction(wrapper->shared_library_handle, "fmi2GetTypesPlatform");
